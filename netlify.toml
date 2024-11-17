@@ -10,4 +10,3 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  URL = "https://ваш-постоянный-домен.netlify.app" # Замените на ваш домен

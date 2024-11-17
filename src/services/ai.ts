@@ -1,6 +1,4 @@
 import OpenAI from 'openai';
-import { db } from '../config/firebase';
-import { updateDoc, doc } from 'firebase/firestore';
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -23,6 +21,10 @@ export const aiService = {
     targetAudience,
     objective
   }: GenerateScriptParams) {
+    if (!import.meta.env.VITE_OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
     try {
       const prompt = `Создай сценарий для короткого видео со следующими параметрами:
         Тема: ${topic}
@@ -57,6 +59,10 @@ export const aiService = {
   },
 
   async analyzeViralPotential(script: string) {
+    if (!import.meta.env.VITE_OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
     try {
       const prompt = `Проанализируй следующий сценарий видео и оцени его вирусный потенциал:
 
@@ -89,6 +95,10 @@ export const aiService = {
   },
 
   async generateHookVariations(topic: string, targetAudience: string) {
+    if (!import.meta.env.VITE_OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
     try {
       const prompt = `Создай 5 вариантов хуков для видео на тему "${topic}" для аудитории "${targetAudience}".
       

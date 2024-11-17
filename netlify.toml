@@ -1,6 +1,7 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  functions = "netlify/functions"
 
 [[redirects]]
   from = "/*"
@@ -10,3 +11,12 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  VITE_FIREBASE_API_KEY = "AIzaSyD1YomusyOJxJIRgn7ewrmz0CU-fmTl9HI"
+  VITE_FIREBASE_AUTH_DOMAIN = "trendhook.online"
+  VITE_FIREBASE_PROJECT_ID = "virahook"
+  VITE_FIREBASE_STORAGE_BUCKET = "virahook.firebasestorage.app"
+  VITE_FIREBASE_MESSAGING_SENDER_ID = "678089630781"
+  VITE_FIREBASE_APP_ID = "1:678089630781:web:e102146eb7fdee23927654"
+
+[functions]
+  node_bundler = "esbuild"

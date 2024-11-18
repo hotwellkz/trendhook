@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function ReelsLibrary() {
+  const navigate = useNavigate();
+  
   const platforms = [
     { name: 'Shorts', status: 'coming soon', icon: '📱' },
     { name: 'X (Twitter)', status: 'coming soon', icon: '𝕏' },
@@ -26,7 +29,10 @@ export function ReelsLibrary() {
             Получите доступ к отобранной коллекции лучшего контента из
             Instagram Reels, YouTube Shorts, TikTok, X и других платформ.
           </p>
-          <button className="bg-[#AAFF00] text-black px-6 md:px-8 py-2.5 md:py-3 rounded-full font-medium hover:bg-[#88CC00] transition-colors text-sm md:text-base">
+          <button 
+            onClick={() => navigate('/login')}
+            className="bg-[#AAFF00] text-black px-6 md:px-8 py-2.5 md:py-3 rounded-full font-medium hover:bg-[#88CC00] transition-colors text-sm md:text-base"
+          >
             Присоединиться к бете
           </button>
         </div>

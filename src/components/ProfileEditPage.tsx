@@ -38,6 +38,7 @@ export function ProfileEditPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [displayName, setDisplayName] = useState(user?.displayName || '');
+  const [paypalEmail, setPaypalEmail] = useState(user?.paypalEmail || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -58,6 +59,7 @@ export function ProfileEditPage() {
       const userRef = doc(db, 'users', user.id);
       await updateDoc(userRef, {
         displayName,
+        paypalEmail,
         updatedAt: new Date()
       });
 
@@ -139,6 +141,20 @@ export function ProfileEditPage() {
               value={user?.email || ''}
               className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
               disabled
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              PayPal Email
+            </label>
+            <input
+              type="email"
+              value={paypalEmail}
+              onChange={(e) => setPaypalEmail(e.target.value)}
+              className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
+              placeholder="Ваш PayPal email для выплат"
+              disabled={loading}
             />
           </div>
 

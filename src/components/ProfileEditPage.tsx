@@ -42,6 +42,7 @@ export function ProfileEditPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,11 +203,19 @@ export function ProfileEditPage() {
                     <button
                       key={plan.priceId}
                       onClick={() => handlePlanSelect(plan.priceId)}
-                      className="w-full bg-black/40 rounded-xl p-4 text-left hover:bg-black/60 transition-colors border border-gray-700/50"
+                      onMouseEnter={() => setHoveredPlan(plan.priceId)}
+                      onMouseLeave={() => setHoveredPlan(null)}
+                      className={`w-full bg-black/40 rounded-xl p-4 text-left transition-all duration-200 border ${
+                        hoveredPlan === plan.priceId 
+                          ? 'border-[#AAFF00] bg-black/60 scale-[1.02]' 
+                          : 'border-gray-700/50 hover:bg-black/60'
+                      }`}
                     >
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium">{plan.title}</span>
-                        <span className="text-[#AAFF00]">${plan.price}/мес</span>
+                        <span className={`${
+                          hoveredPlan === plan.priceId ? 'text-[#AAFF00]' : 'text-gray-400'
+                        } transition-colors`}>${plan.price}/мес</span>
                       </div>
                       <p className="text-sm text-gray-400">{plan.description}</p>
                     </button>

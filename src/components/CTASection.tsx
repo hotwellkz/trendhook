@@ -1,7 +1,10 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export function CTASection() {
+  const navigate = useNavigate();
+
   return (
     <section className="max-w-6xl mx-auto px-4 py-12 md:py-16 lg:py-20">
       <div className="bg-gray-800/30 rounded-[2rem] p-6 md:p-8 lg:p-12 text-center">
@@ -30,7 +33,10 @@ export function CTASection() {
               placeholder="example@gmail.com"
               className="flex-1 bg-transparent px-4 py-2 outline-none rounded-lg text-sm md:text-base w-full sm:w-auto"
             />
-            <button className="bg-[#AAFF00] text-black px-4 md:px-6 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors text-sm md:text-base whitespace-nowrap">
+            <button 
+              onClick={() => navigate('/login')}
+              className="bg-[#AAFF00] text-black px-4 md:px-6 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors text-sm md:text-base whitespace-nowrap"
+            >
               Присоединиться к бете
             </button>
           </div>

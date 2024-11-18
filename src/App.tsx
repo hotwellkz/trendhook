@@ -18,6 +18,8 @@ import { SignUpPage } from './components/SignUpPage';
 import { Dashboard } from './components/Dashboard';
 import { BillingPage } from './components/BillingPage';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { CookiesPolicy } from './components/CookiesPolicy';
+import { TermsConditions } from './components/TermsConditions';
 
 function HomePage() {
   return (
@@ -51,6 +53,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/billing" element={<BillingPage />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/cookies" element={<CookiesPolicy />} />
+          <Route path="/terms" element={<TermsConditions />} />
         </Routes>
       </div>
     </Router>

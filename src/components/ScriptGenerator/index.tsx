@@ -108,8 +108,15 @@ export function ScriptGenerator() {
     }
   };
 
+  const handleNewIdea = () => {
+    setScript('');
+    setAnalysis('');
+    setError('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <div className="w-full bg-gray-800/30 rounded-xl p-6 mb-12">
+    <div className="w-full bg-gray-800/30 rounded-xl p-6 mb-20">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Генератор идей</h2>
         <div className="flex items-center gap-2 bg-[#AAFF00]/10 px-4 py-2 rounded-lg">
@@ -120,64 +127,72 @@ export function ScriptGenerator() {
         </div>
       </div>
 
-      <form onSubmit={handleGenerate} className="space-y-6">
-        <FormInput
-          label="Тема видео"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder="Например: '5 способов улучшить продуктивность' или 'Секреты успешного бизнеса'"
-          required
-          disabled={loading}
+      {!script && (
+        <form onSubmit={handleGenerate} className="space-y-6">
+          <FormInput
+            label="Тема видео"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="Например: '5 способов улучшить продуктивность' или 'Секреты успешного бизнеса'"
+            required
+            disabled={loading}
+          />
+
+          <FormInput
+            label="Длительность (в секундах)"
+            type="number"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            min="15"
+            max="180"
+            required
+            disabled={loading}
+          />
+
+          <FormSelect
+            label="Стиль"
+            value={style}
+            onChange={setStyle}
+            options={STYLE_OPTIONS}
+            placeholder="Выберите стиль видео"
+            required
+            disabled={loading}
+            allowCustom
+          />
+
+          <FormInput
+            label="Целевая аудитория"
+            value={targetAudience}
+            onChange={(e) => setTargetAudience(e.target.value)}
+            placeholder="Например: 'Предприниматели 25-45 лет' или 'Студенты, интересующиеся саморазвитием'"
+            required
+            disabled={loading}
+          />
+
+          <FormSelect
+            label="Цель видео"
+            value={objective}
+            onChange={setObjective}
+            options={OBJECTIVE_OPTIONS}
+            placeholder="Выберите цель видео"
+            required
+            disabled={loading}
+            allowCustom
+          />
+
+          {error && <ErrorMessage message={error} />}
+
+          <GenerateButton loading={loading} />
+        </form>
+      )}
+
+      {script && (
+        <ScriptResult 
+          script={script} 
+          analysis={analysis} 
+          onNewIdea={handleNewIdea}
         />
-
-        <FormInput
-          label="Длительность (в секундах)"
-          type="number"
-          value={duration}
-          onChange={(e) => setDuration(e.target.value)}
-          min="15"
-          max="180"
-          required
-          disabled={loading}
-        />
-
-        <FormSelect
-          label="Стиль"
-          value={style}
-          onChange={setStyle}
-          options={STYLE_OPTIONS}
-          placeholder="Выберите стиль видео"
-          required
-          disabled={loading}
-          allowCustom
-        />
-
-        <FormInput
-          label="Целевая аудитория"
-          value={targetAudience}
-          onChange={(e) => setTargetAudience(e.target.value)}
-          placeholder="Например: 'Предприниматели 25-45 лет' или 'Студенты, интересующиеся саморазвитием'"
-          required
-          disabled={loading}
-        />
-
-        <FormSelect
-          label="Цель видео"
-          value={objective}
-          onChange={setObjective}
-          options={OBJECTIVE_OPTIONS}
-          placeholder="Выберите цель видео"
-          required
-          disabled={loading}
-          allowCustom
-        />
-
-        {error && <ErrorMessage message={error} />}
-
-        <GenerateButton loading={loading} />
-      </form>
-
-      {script && <ScriptResult script={script} analysis={analysis} />}
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import type { ChatCompletionMessageParam } from 'openai/resources/chat';
+import type { ChatCompletionMessage } from 'openai/resources/chat';
 
 interface GenerateScriptParams {
   topic: string;

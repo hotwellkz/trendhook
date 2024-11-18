@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, AlertCircle } from 'lucide-react';
+import { Activity, AlertCircle, Home } from 'lucide-react';
 import { auth } from '../config/firebase';
 import { 
   signInWithEmailAndPassword, 
@@ -89,9 +89,18 @@ export function AuthPage() {
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <Activity className="w-8 h-8 text-[#AAFF00]" />
-          <span className="text-2xl font-bold text-white">ViralHooks</span>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-2">
+            <Activity className="w-8 h-8 text-[#AAFF00]" />
+            <span className="text-2xl font-bold text-white">ViralHooks</span>
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 bg-gray-800/30 px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors"
+          >
+            <Home className="w-5 h-5" />
+            <span>На главную</span>
+          </button>
         </div>
 
         <div className="bg-gray-800/30 rounded-2xl p-6 md:p-8">

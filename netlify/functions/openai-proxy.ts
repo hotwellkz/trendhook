@@ -6,7 +6,6 @@ const openai = new OpenAI({
 });
 
 export const handler: Handler = async (event) => {
-  // Проверяем метод
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -15,7 +14,7 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const { prompt, model = "gpt-3.5-turbo" } = JSON.parse(event.body || '{}');
+    const { prompt } = JSON.parse(event.body || '{}');
 
     if (!prompt) {
       return {
@@ -25,23 +24,39 @@ export const handler: Handler = async (event) => {
     }
 
     const completion = await openai.chat.completions.create({
-      model,
+      model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
     });
 
     return {
       statusCode: 200,
-      body: JSON.stringify(completion.choices[0].message)
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        content: completion.choices[0].message.content
+      })
     };
   } catch (error) {
     console.error('OpenAI API Error:', error);
+    
+    if (error instanceof Error) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ 
+          error: 'OpenAI API Error',
+          message: error.message
+        })
+      };
+    }
+
     return {
       statusCode: 500,
       body: JSON.stringify({ 
         error: 'Internal Server Error',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: 'An unknown error occurred'
       })
     };
   }
-}
+};

@@ -11,21 +11,10 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore']
-        }
-      }
-    }
+    sourcemap: true
   },
   server: {
     port: 5173,
     host: true
-  },
-  define: {
-    'process.env': {}
   }
 });

@@ -1,7 +1,6 @@
 [build]
   command = "npm run build"
   publish = "dist"
-  functions = "dist/functions"
 
 [[redirects]]
   from = "/*"
@@ -11,6 +10,3 @@
 
 [build.environment]
   NODE_VERSION = "18"
-
-[functions]
-  node_bundler = "esbuild"

@@ -20,6 +20,7 @@ import { BillingPage } from './components/BillingPage';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { CookiesPolicy } from './components/CookiesPolicy';
 import { TermsConditions } from './components/TermsConditions';
+import { SubscribersPage } from './components/SubscribersPage';
 
 function HomePage() {
   return (
@@ -55,6 +56,7 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/cookies" element={<CookiesPolicy />} />
           <Route path="/terms" element={<TermsConditions />} />
+          <Route path="/subscribers" element={<SubscribersPage />} />
         </Routes>
       </div>
     </Router>

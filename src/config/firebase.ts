@@ -4,7 +4,7 @@ import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyD1YomusyOJxJIRgn7ewrmz0CU-fmTl9HI",
-  authDomain: "virahook.firebaseapp.com",
+  authDomain: "trendvideo.online",
   projectId: "virahook",
   storageBucket: "virahook.firebasestorage.app",
   messagingSenderId: "678089630781",

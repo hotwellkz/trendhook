@@ -8,21 +8,31 @@ interface GenerateScriptParams {
   objective: string;
 }
 
-const callOpenAIProxy = async (prompt: string) => {
-  const response = await fetch('/.netlify/functions/openai-proxy', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ prompt })
-  });
+interface OpenAIResponse {
+  content: string;
+  error?: string;
+}
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to call OpenAI API');
+const callOpenAIProxy = async (prompt: string): Promise<OpenAIResponse> => {
+  try {
+    const response = await fetch('/.netlify/functions/openai-proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to call OpenAI API');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('OpenAI Proxy Error:', error);
+    throw error;
   }
-
-  return response.json();
 };
 
 export const aiService = {
@@ -48,6 +58,11 @@ export const aiService = {
         4. Рекомендации по визуальному оформлению`;
 
       const response = await callOpenAIProxy(prompt);
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
       return response.content;
     } catch (error) {
       if (error instanceof Error) {
@@ -71,6 +86,11 @@ export const aiService = {
       5. Рекомендации по улучшению`;
 
       const response = await callOpenAIProxy(prompt);
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
       return response.content;
     } catch (error) {
       if (error instanceof Error) {
@@ -95,6 +115,11 @@ export const aiService = {
       и т.д.`;
 
       const response = await callOpenAIProxy(prompt);
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
       return response.content;
     } catch (error) {
       if (error instanceof Error) {

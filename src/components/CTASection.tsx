@@ -1,9 +1,56 @@
-import React from 'react';
-import { Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
+import { createUser } from '../services/firestore';
 
 export function CTASection() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      navigate('/signup');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Генерируем случайный пароль для пользователя
+      const tempPassword = Math.random().toString(36).slice(-12);
+      
+      // Создаем пользователя в Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
+      
+      // Создаем запись пользователя в Firestore
+      await createUser(userCredential.user.uid, {
+        email: userCredential.user.email!,
+        displayName: null,
+        photoURL: null
+      });
+
+      // Перенаправляем на дашборд
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Registration error:', err);
+      if (err instanceof Error) {
+        if (err.message.includes('email-already-in-use')) {
+          setError('Этот email уже зарегистрирован. Пожалуйста, войдите в систему.');
+        } else {
+          setError('Произошла ошибка при регистрации. Пожалуйста, попробуйте позже.');
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-12 md:py-16 lg:py-20">
@@ -26,21 +73,37 @@ export function CTASection() {
           </div>
         </div>
 
-        <div className="max-w-[280px] sm:max-w-md mx-auto">
+        <form onSubmit={handleSubmit} className="max-w-[280px] sm:max-w-md mx-auto">
           <div className="bg-gray-800/50 p-2 rounded-lg flex flex-col sm:flex-row gap-2">
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="example@gmail.com"
               className="flex-1 bg-transparent px-4 py-2 outline-none rounded-lg text-sm md:text-base w-full sm:w-auto"
             />
             <button 
-              onClick={() => navigate('/signup')}
-              className="bg-[#AAFF00] text-black px-4 md:px-6 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors text-sm md:text-base whitespace-nowrap"
+              type="submit"
+              disabled={loading}
+              className="bg-[#AAFF00] text-black px-4 md:px-6 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors text-sm md:text-base whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              Присоединиться
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Подождите...</span>
+                </>
+              ) : (
+                'Присоединиться'
+              )}
             </button>
           </div>
-        </div>
+          {error && (
+            <div className="mt-4 text-red-500 text-sm flex items-center gap-2 justify-center">
+              <AlertCircle className="w-4 h-4" />
+              <span>{error}</span>
+            </div>
+          )}
+        </form>
       </div>
     </section>
   );

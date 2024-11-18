@@ -1,10 +1,9 @@
 import OpenAI from 'openai';
 
-// Only create OpenAI instance if API key is available
 const getOpenAIClient = () => {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   if (!apiKey) {
-    throw new Error('OpenAI API key is not configured');
+    throw new Error('OpenAI API key is not configured. Please check your environment variables.');
   }
   return new OpenAI({
     apiKey,
@@ -56,10 +55,21 @@ export const aiService = {
         temperature: 0.7,
       });
 
+      if (!completion.choices[0]?.message?.content) {
+        throw new Error('Не удалось получить ответ от OpenAI API');
+      }
+
       return completion.choices[0].message.content;
     } catch (error) {
-      console.error('Error generating script:', error);
-      throw error;
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          throw new Error('Ошибка авторизации API. Пожалуйста, проверьте настройки API ключа.');
+        }
+        if (error.message.includes('Rate limit')) {
+          throw new Error('Превышен лимит запросов к API. Пожалуйста, подождите немного и попробуйте снова.');
+        }
+      }
+      throw new Error('Произошла ошибка при генерации сценария. Пожалуйста, попробуйте позже.');
     }
   },
 
@@ -90,10 +100,21 @@ export const aiService = {
         temperature: 0.3,
       });
 
+      if (!completion.choices[0]?.message?.content) {
+        throw new Error('Не удалось получить ответ от OpenAI API');
+      }
+
       return completion.choices[0].message.content;
     } catch (error) {
-      console.error('Error analyzing viral potential:', error);
-      throw error;
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          throw new Error('Ошибка авторизации API. Пожалуйста, проверьте настройки API ключа.');
+        }
+        if (error.message.includes('Rate limit')) {
+          throw new Error('Превышен лимит запросов к API. Пожалуйста, подождите немного и попробуйте снова.');
+        }
+      }
+      throw new Error('Произошла ошибка при анализе потенциала. Пожалуйста, попробуйте позже.');
     }
   },
 
@@ -125,10 +146,21 @@ export const aiService = {
         temperature: 0.9,
       });
 
+      if (!completion.choices[0]?.message?.content) {
+        throw new Error('Не удалось получить ответ от OpenAI API');
+      }
+
       return completion.choices[0].message.content;
     } catch (error) {
-      console.error('Error generating hook variations:', error);
-      throw error;
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          throw new Error('Ошибка авторизации API. Пожалуйста, проверьте настройки API ключа.');
+        }
+        if (error.message.includes('Rate limit')) {
+          throw new Error('Превышен лимит запросов к API. Пожалуйста, подождите немного и попробуйте снова.');
+        }
+      }
+      throw new Error('Произошла ошибка при генерации вариантов хуков. Пожалуйста, попробуйте позже.');
     }
   }
 };

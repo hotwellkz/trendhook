@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Activity, LogOut, User, Settings, BarChart2, PlusCircle, AlertCircle, Users } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { Activity, LogOut, User, Settings, BarChart2, PlusCircle, AlertCircle } from 'lucide-react';
 import { auth } from '../config/firebase';
 import { ScriptGenerator } from './ScriptGenerator';
 import { useAuth } from '../hooks/useAuth';
 
 export function Dashboard() {
   const { user, loading } = useAuth();
-  const [showGenerator, setShowGenerator] = React.useState(false);
+  const [showGenerator, setShowGenerator] = useState(false);
   const navigate = useNavigate();
 
   if (loading) {
@@ -153,6 +153,13 @@ export function Dashboard() {
                 className="w-full bg-[#AAFF00] text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#88CC00] transition-colors"
               >
                 Улучшить план
+              </button>
+              <button
+                onClick={() => navigate('/partners')}
+                className="w-full bg-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
+              >
+                <Users className="w-4 h-4" />
+                <span>Партнерская программа</span>
               </button>
             </div>
           </div>

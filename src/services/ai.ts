@@ -1,9 +1,16 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+// Only create OpenAI instance if API key is available
+const getOpenAIClient = () => {
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OpenAI API key is not configured');
+  }
+  return new OpenAI({
+    apiKey,
+    dangerouslyAllowBrowser: true
+  });
+};
 
 interface GenerateScriptParams {
   topic: string;
@@ -21,11 +28,9 @@ export const aiService = {
     targetAudience,
     objective
   }: GenerateScriptParams) {
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      throw new Error('OpenAI API key is not configured');
-    }
-
     try {
+      const openai = getOpenAIClient();
+      
       const prompt = `Создай сценарий для короткого видео со следующими параметрами:
         Тема: ${topic}
         Длительность: ${duration} секунд
@@ -59,11 +64,9 @@ export const aiService = {
   },
 
   async analyzeViralPotential(script: string) {
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      throw new Error('OpenAI API key is not configured');
-    }
-
     try {
+      const openai = getOpenAIClient();
+      
       const prompt = `Проанализируй следующий сценарий видео и оцени его вирусный потенциал:
 
       ${script}
@@ -95,11 +98,9 @@ export const aiService = {
   },
 
   async generateHookVariations(topic: string, targetAudience: string) {
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      throw new Error('OpenAI API key is not configured');
-    }
-
     try {
+      const openai = getOpenAIClient();
+      
       const prompt = `Создай 5 вариантов хуков для видео на тему "${topic}" для аудитории "${targetAudience}".
       
       Каждый хук должен быть:

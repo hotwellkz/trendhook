@@ -4,13 +4,17 @@ export interface User {
   displayName: string | null;
   photoURL: string | null;
   createdAt: Date;
-  subscription: {
-    plan: 'free' | 'content-creator' | 'business' | 'agency';
-    tokensLeft: number;
-    expiresAt: Date;
-    lastUpdated?: Date;
-  };
+  subscription: UserSubscription;
 }
+
+export interface UserSubscription {
+  plan: SubscriptionPlan;
+  tokensLeft: number;
+  expiresAt: Date;
+  lastUpdated?: Date;
+}
+
+export type SubscriptionPlan = 'free' | 'content-creator' | 'business' | 'agency';
 
 export interface VideoContent {
   id: string;

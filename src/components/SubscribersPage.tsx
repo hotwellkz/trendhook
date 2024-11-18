@@ -1,13 +1,130 @@
-// Обновляем импорты, добавляя getDocs и collection
 import React, { useState, useEffect } from 'react';
-import { Activity, ArrowLeft, Search, Plus, Download, Edit2, Trash2, Loader2 } from 'lucide-react';
+import { Activity, ArrowLeft, Search, Plus, Download, Edit2, Trash2, Loader2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { doc, deleteDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, deleteDoc, collection, getDocs, updateDoc, addDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { User } from '../types/database';
 
-// ... остальной код до SubscribersPage остается без изменений ...
+interface SubscriberModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: Partial<User>) => Promise<void>;
+  initialData?: User;
+  title: string;
+}
+
+function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: SubscriberModalProps) {
+  const [email, setEmail] = useState(initialData?.email || '');
+  const [displayName, setDisplayName] = useState(initialData?.displayName || '');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (initialData) {
+      setEmail(initialData.email);
+      setDisplayName(initialData.displayName || '');
+    }
+  }, [initialData]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await onSubmit({
+        email,
+        displayName,
+      });
+      onClose();
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      setError('Произошла ошибка при сохранении');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-gray-900 rounded-2xl w-full max-w-lg">
+        <div className="flex justify-between items-center p-6 border-b border-gray-800">
+          <h2 className="text-xl font-bold">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
+              required
+              disabled={loading || !!initialData}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Имя пользователя
+            </label>
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
+              required
+              disabled={loading}
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-500/10 text-red-500 p-4 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-4 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg text-gray-400 hover:text-white transition-colors"
+              disabled={loading}
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              className="bg-[#AAFF00] text-black px-4 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Сохранение...</span>
+                </>
+              ) : (
+                'Сохранить'
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 export default function SubscribersPage() {
   const navigate = useNavigate();
@@ -19,7 +136,6 @@ export default function SubscribersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Загрузка подписчиков
   useEffect(() => {
     const loadSubscribers = async () => {
       try {
@@ -54,13 +170,53 @@ export default function SubscribersPage() {
   );
 
   const handleAdd = async (data: Partial<User>) => {
-    // Реализация добавления подписчика будет добавлена позже
-    console.log('Adding subscriber:', data);
+    try {
+      const usersRef = collection(db, 'users');
+      const now = new Date();
+      const trialEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      const newUser: Partial<User> = {
+        ...data,
+        createdAt: now,
+        subscription: {
+          plan: 'free',
+          tokensLeft: 10,
+          status: 'trial',
+          trialEndsAt,
+          expiresAt: trialEndsAt,
+          lastUpdated: now
+        }
+      };
+
+      const docRef = await addDoc(usersRef, newUser);
+      setSubscribers(prev => [...prev, { id: docRef.id, ...newUser } as User]);
+    } catch (err) {
+      console.error('Error adding subscriber:', err);
+      throw new Error('Ошибка при добавлении подписчика');
+    }
   };
 
   const handleEdit = async (data: Partial<User>) => {
-    // Реализация редактирования подписчика будет добавлена позже
-    console.log('Editing subscriber:', data);
+    if (!editingSubscriber?.id) return;
+
+    try {
+      const userRef = doc(db, 'users', editingSubscriber.id);
+      await updateDoc(userRef, {
+        ...data,
+        updatedAt: new Date()
+      });
+
+      setSubscribers(prev => 
+        prev.map(sub => 
+          sub.id === editingSubscriber.id 
+            ? { ...sub, ...data }
+            : sub
+        )
+      );
+    } catch (err) {
+      console.error('Error editing subscriber:', err);
+      throw new Error('Ошибка при редактировании подписчика');
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -79,13 +235,63 @@ export default function SubscribersPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Навигация остается без изменений */}
       <nav className="border-b border-gray-800 bg-black/95 backdrop-blur-sm">
-        {/* ... код навигации ... */}
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-2">
+              <Activity className="w-6 h-6 text-[#AAFF00]" />
+              <button 
+                onClick={() => navigate('/')}
+                className="text-xl font-bold hover:text-[#AAFF00] transition-colors"
+              >
+                ViralHooks
+              </button>
+            </div>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>Назад</span>
+            </button>
+          </div>
+        </div>
       </nav>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* ... остальной код до таблицы ... */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">Подписчики</h1>
+            <p className="text-gray-400">Управление подписчиками и их подписками</p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 bg-[#AAFF00] text-black px-4 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Добавить</span>
+            </button>
+            <button className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <Download className="w-5 h-5" />
+              <span>Экспорт</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-gray-800/30 rounded-xl p-4 mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Поиск по email или имени..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-black/40 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
+            />
+          </div>
+        </div>
 
         <div className="bg-gray-800/30 rounded-xl overflow-hidden">
           {loading ? (
@@ -103,14 +309,57 @@ export default function SubscribersPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                {/* ... остальной код таблицы ... */}
+                <thead>
+                  <tr className="bg-black/20">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Email</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Имя</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">План</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Статус</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Токены</th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-400">Действия</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-800">
+                  {filteredSubscribers.map((subscriber) => (
+                    <tr key={subscriber.id} className="hover:bg-black/20">
+                      <td className="px-4 py-3 text-sm">{subscriber.email}</td>
+                      <td className="px-4 py-3 text-sm">{subscriber.displayName}</td>
+                      <td className="px-4 py-3 text-sm">{subscriber.subscription.plan}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          subscriber.subscription.status === 'active'
+                            ? 'bg-green-500/10 text-green-500'
+                            : subscriber.subscription.status === 'trial'
+                            ? 'bg-blue-500/10 text-blue-500'
+                            : 'bg-red-500/10 text-red-500'
+                        }`}>
+                          {subscriber.subscription.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm">{subscriber.subscription.tokensLeft}</td>
+                      <td className="px-4 py-3 text-sm text-right">
+                        <button
+                          onClick={() => setEditingSubscriber(subscriber)}
+                          className="text-gray-400 hover:text-white transition-colors p-1"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(subscriber.id)}
+                          className="text-gray-400 hover:text-red-500 transition-colors p-1 ml-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           )}
         </div>
       </div>
 
-      {/* Модальные окна остаются без изменений */}
       <SubscriberModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}

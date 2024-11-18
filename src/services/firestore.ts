@@ -4,7 +4,8 @@ import {
   getDoc,
   setDoc,
   Timestamp,
-  DocumentData
+  DocumentData,
+  updateDoc
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { User, UserSubscription, SubscriptionPlan } from '../types/database';
@@ -15,15 +16,23 @@ interface CreateUserData {
   photoURL: string | null;
 }
 
+const TRIAL_PERIOD_DAYS = 7;
+const INITIAL_TOKENS = 10;
+
 export const createUser = async (userId: string, userData: CreateUserData): Promise<User> => {
   try {
     const userRef = doc(db, 'users', userId);
     
+    const now = new Date();
+    const trialEndsAt = new Date(now.getTime() + TRIAL_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+
     const subscription: UserSubscription = {
       plan: 'free',
-      tokensLeft: 10,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      lastUpdated: new Date()
+      tokensLeft: INITIAL_TOKENS,
+      status: 'trial',
+      trialEndsAt,
+      expiresAt: trialEndsAt,
+      lastUpdated: now
     };
 
     const data: User = {
@@ -31,7 +40,7 @@ export const createUser = async (userId: string, userData: CreateUserData): Prom
       email: userData.email,
       displayName: userData.displayName,
       photoURL: userData.photoURL,
-      createdAt: new Date(),
+      createdAt: now,
       subscription
     };
     
@@ -40,8 +49,9 @@ export const createUser = async (userId: string, userData: CreateUserData): Prom
       createdAt: Timestamp.fromDate(data.createdAt),
       subscription: {
         ...subscription,
+        trialEndsAt: Timestamp.fromDate(subscription.trialEndsAt),
         expiresAt: Timestamp.fromDate(subscription.expiresAt),
-        lastUpdated: subscription.lastUpdated ? Timestamp.fromDate(subscription.lastUpdated) : null
+        lastUpdated: Timestamp.fromDate(subscription.lastUpdated)
       }
     });
     
@@ -62,19 +72,64 @@ export const getUser = async (userId: string): Promise<User | null> => {
     }
 
     const data = userSnap.data();
-    return {
+    const user = {
       ...data,
       id: userId,
       createdAt: data.createdAt.toDate(),
       subscription: {
         plan: data.subscription?.plan || 'free',
-        tokensLeft: data.subscription?.tokensLeft || 10,
-        expiresAt: data.subscription?.expiresAt.toDate() || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        tokensLeft: data.subscription?.tokensLeft || 0,
+        status: data.subscription?.status || 'trial',
+        trialEndsAt: data.subscription?.trialEndsAt?.toDate() || new Date(),
+        expiresAt: data.subscription?.expiresAt?.toDate() || new Date(),
         lastUpdated: data.subscription?.lastUpdated?.toDate() || null
       }
     } as User;
+
+    // Проверяем истек ли пробный период
+    const now = new Date();
+    if (user.subscription.status === 'trial' && now > user.subscription.trialEndsAt) {
+      // Обновляем статус подписки
+      await updateDoc(userRef, {
+        'subscription.status': 'expired',
+        'subscription.tokensLeft': 0,
+        'subscription.lastUpdated': Timestamp.fromDate(now)
+      });
+
+      user.subscription.status = 'expired';
+      user.subscription.tokensLeft = 0;
+      user.subscription.lastUpdated = now;
+    }
+
+    return user;
   } catch (error) {
     console.error('Error getting user:', error);
     throw new Error('Не удалось получить данные пользователя');
+  }
+};
+
+export const checkSubscriptionStatus = async (userId: string): Promise<boolean> => {
+  try {
+    const user = await getUser(userId);
+    if (!user) return false;
+
+    const { subscription } = user;
+    const now = new Date();
+
+    // Проверяем статус подписки
+    if (subscription.status === 'trial' && now > subscription.trialEndsAt) {
+      await updateDoc(doc(db, 'users', userId), {
+        'subscription.status': 'expired',
+        'subscription.tokensLeft': 0,
+        'subscription.lastUpdated': Timestamp.fromDate(now)
+      });
+      return false;
+    }
+
+    return subscription.status === 'active' || 
+           (subscription.status === 'trial' && now <= subscription.trialEndsAt);
+  } catch (error) {
+    console.error('Error checking subscription:', error);
+    return false;
   }
 };

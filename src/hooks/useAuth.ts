@@ -7,6 +7,7 @@ import type { User } from '../types/database';
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser: FirebaseUser | null) => {
@@ -17,19 +18,20 @@ export function useAuth() {
           
           if (!userData) {
             // Создаем нового пользователя в Firestore
-            await createUser(firebaseUser.uid, {
+            const newUser = {
               id: firebaseUser.uid,
               email: firebaseUser.email!,
-              displayName: firebaseUser.displayName,
+              displayName: firebaseUser.displayName || 'Пользователь',
               photoURL: firebaseUser.photoURL,
+              createdAt: new Date(),
               subscription: {
                 plan: 'free',
                 tokensLeft: 10,
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 дней пробного периода
               }
-            });
+            };
             
-            // Получаем обновленные данные пользователя
+            await createUser(firebaseUser.uid, newUser);
             userData = await getUser(firebaseUser.uid);
           }
           
@@ -41,6 +43,7 @@ export function useAuth() {
         }
       } catch (error) {
         console.error('Error in auth state change:', error);
+        setError(error instanceof Error ? error.message : 'Ошибка авторизации');
         setUser(null);
       } finally {
         setLoading(false);
@@ -50,5 +53,5 @@ export function useAuth() {
     return () => unsubscribe();
   }, []);
 
-  return { user, loading };
+  return { user, loading, error };
 }

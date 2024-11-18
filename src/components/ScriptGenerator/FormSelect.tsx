@@ -36,8 +36,8 @@ export function FormSelect({
   };
 
   return (
-    <div className="space-y-2 relative">
-      <label className="block text-white text-base">
+    <div className="space-y-2 bg-black/20 p-4 rounded-xl relative">
+      <label className="block text-white text-base font-medium">
         {label}
       </label>
       
@@ -46,7 +46,7 @@ export function FormSelect({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-black/40 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
+          className="w-full bg-black/40 rounded-lg px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-800/50"
           placeholder={placeholder}
           required={required}
           disabled={disabled}
@@ -56,7 +56,7 @@ export function FormSelect({
           <button
             type="button"
             onClick={() => !disabled && setIsOpen(!isOpen)}
-            className="w-full bg-black/40 rounded-lg px-4 py-3 text-left text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 flex justify-between items-center disabled:opacity-50"
+            className="w-full bg-black/40 rounded-lg px-4 py-3.5 text-left text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 flex justify-between items-center disabled:opacity-50 border border-gray-800/50"
             disabled={disabled}
           >
             <span className={value ? 'text-white' : 'text-gray-500'}>

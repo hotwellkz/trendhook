@@ -8,7 +8,7 @@ import { db } from '../config/firebase';
 export function ScriptGenerator() {
   const { user } = useAuth();
   const [topic, setTopic] = useState('');
-  const [duration, setDuration] = useState(60);
+  const [duration, setDuration] = useState<number | ''>(60);
   const [style, setStyle] = useState('');
   const [targetAudience, setTargetAudience] = useState('');
   const [objective, setObjective] = useState('');
@@ -18,7 +18,6 @@ export function ScriptGenerator() {
   const [error, setError] = useState('');
   const [tokens, setTokens] = useState(0);
 
-  // Подписываемся на обновления токенов пользователя
   useEffect(() => {
     if (!user?.id) return;
 
@@ -116,6 +115,11 @@ export function ScriptGenerator() {
       return;
     }
 
+    if (duration === '') {
+      setError('Пожалуйста, укажите длительность видео');
+      return;
+    }
+
     try {
       const hasTokens = await checkTokens();
       if (!hasTokens) return;
@@ -125,7 +129,7 @@ export function ScriptGenerator() {
       // Генерируем сценарий
       const generatedScript = await aiService.generateScript({
         topic,
-        duration,
+        duration: Number(duration),
         style,
         targetAudience,
         objective
@@ -201,7 +205,7 @@ export function ScriptGenerator() {
           <input
             type="number"
             value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
+            onChange={(e) => setDuration(e.target.value === '' ? '' : Number(e.target.value))}
             min="15"
             max="180"
             className="w-full bg-black/20 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"

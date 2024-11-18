@@ -73,8 +73,117 @@ export function Dashboard() {
         </div>
       </nav>
 
-      {/* Rest of the component remains the same */}
-      {/* ... */}
+      <div className="flex-1 max-w-6xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">
+            Добро пожаловать, {user.displayName || 'Пользователь'}!
+          </h1>
+          <p className="text-gray-400">
+            Ваш план: <span className="text-[#AAFF00]">{user.subscription?.plan || 'Бесплатный'}</span>
+            {isInTrial && (
+              <span className="ml-2 text-yellow-400">
+                (Пробный период: осталось {trialDaysLeft} дней)
+              </span>
+            )}
+          </p>
+        </div>
+
+        {isTrialExpired && (
+          <div className="mb-8 bg-red-500/10 text-red-500 p-4 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-6 h-6 flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="font-semibold mb-1">Пробный период истек</h3>
+              <p className="text-sm">
+                Ваш пробный период закончился. Для продолжения использования сервиса, пожалуйста, 
+                выберите подходящий тарифный план.
+              </p>
+              <button
+                onClick={handleUpgrade}
+                className="mt-3 bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors"
+              >
+                Выбрать план
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+          <div className="bg-gray-800/30 rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-[#AAFF00]/10 rounded-lg">
+                <User className="w-6 h-6 text-[#AAFF00]" />
+              </div>
+              <h2 className="text-xl font-semibold">Профиль</h2>
+            </div>
+            <div className="space-y-2 text-gray-400">
+              <p>Email: {user.email}</p>
+              <p>Токенов осталось: {user.subscription?.tokensLeft || 0}</p>
+            </div>
+          </div>
+
+          <div className="bg-gray-800/30 rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-[#AAFF00]/10 rounded-lg">
+                <BarChart2 className="w-6 h-6 text-[#AAFF00]" />
+              </div>
+              <h2 className="text-xl font-semibold">Статистика</h2>
+            </div>
+            <div className="space-y-2 text-gray-400">
+              <p>Проанализировано видео: 0</p>
+              <p>Создано сценариев: 0</p>
+            </div>
+          </div>
+
+          <div className="bg-gray-800/30 rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-[#AAFF00]/10 rounded-lg">
+                <Settings className="w-6 h-6 text-[#AAFF00]" />
+              </div>
+              <h2 className="text-xl font-semibold">Настройки</h2>
+            </div>
+            <div className="space-y-3">
+              <button 
+                onClick={handleEditProfile}
+                className="w-full bg-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-600 transition-colors"
+              >
+                Изменить профиль
+              </button>
+              <button
+                onClick={handleUpgrade}
+                className="w-full bg-[#AAFF00] text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#88CC00] transition-colors"
+              >
+                Улучшить план
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <button
+            onClick={() => setShowGenerator(!showGenerator)}
+            disabled={isTrialExpired}
+            className="flex items-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <PlusCircle className="w-5 h-5" />
+            <span>Создать новый сценарий</span>
+          </button>
+        </div>
+
+        {showGenerator && (
+          <div className="mb-8">
+            <ScriptGenerator />
+          </div>
+        )}
+
+        {!showGenerator && (
+          <div className="bg-gray-800/30 rounded-xl p-6">
+            <h2 className="text-xl font-semibold mb-4">Последняя активность</h2>
+            <div className="text-gray-400 text-center py-8">
+              Пока нет активности. Начните анализировать видео или создавать сценарии!
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

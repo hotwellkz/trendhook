@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { stripeService } from '../services/stripe';
@@ -62,6 +62,7 @@ const pricingPlans: PricingPlan[] = [
 export function PricingSection() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
 
   const handleSubscribe = async (priceId: string) => {
     try {
@@ -95,8 +96,14 @@ export function PricingSection() {
         {pricingPlans.map((plan) => (
           <div
             key={plan.title}
-            className={`bg-gray-800/30 rounded-2xl p-8 ${
+            onMouseEnter={() => setHoveredPlan(plan.priceId)}
+            onMouseLeave={() => setHoveredPlan(null)}
+            className={`bg-gray-800/30 rounded-2xl p-8 transition-all duration-200 ${
               plan.isPopular ? 'ring-2 ring-[#AAFF00]' : ''
+            } ${
+              hoveredPlan === plan.priceId 
+                ? 'ring-2 ring-[#AAFF00] transform scale-[1.02]' 
+                : ''
             }`}
           >
             <div className="space-y-4">
@@ -117,7 +124,7 @@ export function PricingSection() {
               <button
                 onClick={() => handleSubscribe(plan.priceId)}
                 className={`w-full py-3 rounded-full font-medium transition-colors mt-8 ${
-                  plan.isPopular
+                  plan.isPopular || hoveredPlan === plan.priceId
                     ? 'bg-[#AAFF00] text-black hover:bg-[#88CC00]'
                     : 'bg-gray-800 text-white hover:bg-gray-700'
                 }`}

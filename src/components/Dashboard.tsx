@@ -148,8 +148,13 @@ export function Dashboard() {
               <h2 className="text-xl font-semibold">Статистика</h2>
             </div>
             <div className="space-y-2 text-gray-400">
-              <p>Проанализировано видео: 0</p>
-              <p>Создано сценариев: 0</p>
+              <p>Проанализировано видео: {user.stats?.videosAnalyzed || 0}</p>
+              <p>Создано сценариев: {user.stats?.scriptsGenerated || 0}</p>
+              {user.stats?.lastScriptDate && (
+                <p className="text-sm">
+                  Последний сценарий: {new Date(user.stats.lastScriptDate).toLocaleDateString()}
+                </p>
+              )}
             </div>
           </div>
 
@@ -186,7 +191,6 @@ export function Dashboard() {
 
         {/* Кнопка создания сценария и генератор для десктопа */}
         <div className="hidden md:block">
-          <div className="mb-8">
             <button
               onClick={() => setShowGenerator(!showGenerator)}
               disabled={isTrialExpired}
@@ -195,7 +199,6 @@ export function Dashboard() {
               <PlusCircle className="w-5 h-5" />
               <span>Создать новый сценарий</span>
             </button>
-          </div>
 
           {showGenerator && (
             <div className="mb-8">

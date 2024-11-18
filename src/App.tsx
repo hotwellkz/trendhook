@@ -16,6 +16,7 @@ import { RealTimeDataSection } from './components/RealTimeDataSection';
 import { AuthPage } from './components/AuthPage';
 import { SignUpPage } from './components/SignUpPage';
 import { Dashboard } from './components/Dashboard';
+import { BillingPage } from './components/BillingPage';
 
 function HomePage() {
   return (
@@ -47,6 +48,7 @@ function App() {
           <Route path="/login" element={<AuthPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/billing" element={<BillingPage />} />
         </Routes>
       </div>
     </Router>

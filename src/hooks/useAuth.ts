@@ -10,25 +10,41 @@ export function useAuth() {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser) {
-        // Get or create user in Firestore
-        let userData = await getUser(firebaseUser.uid);
-        
-        if (!userData) {
-          // Create new user in Firestore
-          await createUser(firebaseUser.uid, {
-            email: firebaseUser.email!,
-            displayName: firebaseUser.displayName,
-            photoURL: firebaseUser.photoURL
-          });
-          userData = await getUser(firebaseUser.uid);
+      try {
+        if (firebaseUser) {
+          // Получаем данные пользователя из Firestore
+          let userData = await getUser(firebaseUser.uid);
+          
+          if (!userData) {
+            // Создаем нового пользователя в Firestore
+            await createUser(firebaseUser.uid, {
+              id: firebaseUser.uid,
+              email: firebaseUser.email!,
+              displayName: firebaseUser.displayName,
+              photoURL: firebaseUser.photoURL,
+              subscription: {
+                plan: 'free',
+                tokensLeft: 10,
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 дней пробного периода
+              }
+            });
+            
+            // Получаем обновленные данные пользователя
+            userData = await getUser(firebaseUser.uid);
+          }
+          
+          if (userData) {
+            setUser(userData);
+          }
+        } else {
+          setUser(null);
         }
-        
-        setUser(userData);
-      } else {
+      } catch (error) {
+        console.error('Error in auth state change:', error);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();

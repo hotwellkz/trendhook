@@ -5,7 +5,8 @@ import {
   setDoc,
   Timestamp,
   DocumentData,
-  updateDoc
+  updateDoc,
+  increment
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { User, UserSubscription, SubscriptionPlan, SubscriptionStatus } from '../types/database';
@@ -41,7 +42,11 @@ export const createUser = async (userId: string, userData: CreateUserData): Prom
       displayName: userData.displayName,
       photoURL: userData.photoURL,
       createdAt: now,
-      subscription
+      subscription,
+      stats: {
+        scriptsGenerated: 0,
+        videosAnalyzed: 0
+      }
     };
     
     await setDoc(userRef, {
@@ -83,6 +88,11 @@ export const getUser = async (userId: string): Promise<User | null> => {
         trialEndsAt: data.subscription?.trialEndsAt?.toDate() || new Date(),
         expiresAt: data.subscription?.expiresAt?.toDate() || new Date(),
         lastUpdated: data.subscription?.lastUpdated?.toDate() || null
+      },
+      stats: {
+        scriptsGenerated: data.stats?.scriptsGenerated || 0,
+        videosAnalyzed: data.stats?.videosAnalyzed || 0,
+        lastScriptDate: data.stats?.lastScriptDate?.toDate() || undefined
       }
     } as User;
 
@@ -105,6 +115,19 @@ export const getUser = async (userId: string): Promise<User | null> => {
   } catch (error) {
     console.error('Error getting user:', error);
     throw new Error('Не удалось получить данные пользователя');
+  }
+};
+
+export const incrementScriptCount = async (userId: string): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      'stats.scriptsGenerated': increment(1),
+      'stats.lastScriptDate': Timestamp.fromDate(new Date())
+    });
+  } catch (error) {
+    console.error('Error incrementing script count:', error);
+    throw new Error('Не удалось обновить статистику');
   }
 };
 

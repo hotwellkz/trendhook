@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Activity, LogOut, User, Settings, BarChart2, PlusCircle, AlertCircle } from 'lucide-react';
 import { auth } from '../config/firebase';
@@ -34,9 +35,9 @@ export function Dashboard() {
     navigate('/billing');
   };
 
-  const isTrialExpired = user.subscription.status === 'expired';
-  const isInTrial = user.subscription.status === 'trial';
-  const trialDaysLeft = isInTrial ? 
+  const isTrialExpired = user?.subscription?.status === 'expired';
+  const isInTrial = user?.subscription?.status === 'trial';
+  const trialDaysLeft = isInTrial && user?.subscription?.trialEndsAt ? 
     Math.max(0, Math.ceil((user.subscription.trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 
     0;
 

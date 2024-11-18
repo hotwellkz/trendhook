@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface DiscoveryItemProps {
   text: string;
@@ -17,6 +18,8 @@ function DiscoveryItem({ text }: DiscoveryItemProps) {
 }
 
 export function HowToSection() {
+  const navigate = useNavigate();
+
   return (
     <section className="max-w-6xl mx-auto px-4 py-20">
       <div className="text-center mb-16">
@@ -32,7 +35,10 @@ export function HowToSection() {
           Узнайте, как использовать ViralHooks и как это поможет вам сэкономить время и деньги,
           создавая вирусные видео быстрее, чем когда-либо.
         </p>
-        <button className="bg-[#AAFF00] text-black px-8 py-3 rounded-full font-medium hover:bg-[#88CC00] transition-colors">
+        <button 
+          onClick={() => navigate('/login')}
+          className="bg-[#AAFF00] text-black px-8 py-3 rounded-full font-medium hover:bg-[#88CC00] transition-colors"
+        >
           Присоединиться к бете
         </button>
       </div>

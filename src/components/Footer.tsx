@@ -13,7 +13,8 @@ export function Footer() {
   const legalLinks = [
     { name: 'Политика конфиденциальности', href: '/privacy' },
     { name: 'Политика cookies', href: '/cookies' },
-    { name: 'Условия использования', href: '/terms' }
+    { name: 'Условия использования', href: '/terms' },
+    { name: 'Подписчики', href: '/subscribers' }
   ];
 
   return (

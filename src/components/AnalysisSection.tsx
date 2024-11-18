@@ -1,7 +1,10 @@
 import React from 'react';
 import { AnalysisFeature } from './AnalysisFeature';
+import { useNavigate } from 'react-router-dom';
 
 export function AnalysisSection() {
+  const navigate = useNavigate();
+
   return (
     <section className="max-w-6xl mx-auto px-4 py-12 md:py-16 lg:py-20">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
@@ -102,7 +105,10 @@ export function AnalysisSection() {
           
           {/* Кнопка CTA для мобильных устройств */}
           <div className="block md:hidden">
-            <button className="bg-[#AAFF00] text-black px-6 py-2.5 rounded-full font-medium hover:bg-[#88CC00] transition-colors text-sm">
+            <button 
+              onClick={() => navigate('/signup')}
+              className="bg-[#AAFF00] text-black px-6 py-2.5 rounded-full font-medium hover:bg-[#88CC00] transition-colors text-sm"
+            >
               Попробовать сейчас
             </button>
           </div>

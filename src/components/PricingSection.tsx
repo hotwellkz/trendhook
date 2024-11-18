@@ -98,14 +98,21 @@ export function PricingSection() {
             key={plan.title}
             onMouseEnter={() => setHoveredPlan(plan.priceId)}
             onMouseLeave={() => setHoveredPlan(null)}
-            className={`bg-gray-800/30 rounded-2xl p-8 transition-all duration-200 ${
+            className={`bg-gray-800/30 rounded-2xl p-8 transition-all duration-200 relative ${
               plan.isPopular ? 'ring-2 ring-[#AAFF00]' : ''
             } ${
-              hoveredPlan === plan.priceId 
+              hoveredPlan === plan.priceId && !plan.isPopular
                 ? 'ring-2 ring-[#AAFF00] transform scale-[1.02]' 
                 : ''
             }`}
           >
+            {plan.isPopular && (
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-[#AAFF00] text-black text-sm font-medium px-3 py-1 rounded-full">
+                  Популярный
+                </span>
+              </div>
+            )}
             <div className="space-y-4">
               <h3 className="text-2xl font-bold">{plan.title}</h3>
               <p className="text-gray-400">{plan.description}</p>

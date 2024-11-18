@@ -101,8 +101,8 @@ export function PricingSection() {
             className={`bg-gray-800/30 rounded-2xl p-8 transition-all duration-200 relative ${
               plan.isPopular ? 'ring-2 ring-[#AAFF00]' : ''
             } ${
-              hoveredPlan === plan.priceId && !plan.isPopular
-                ? 'ring-2 ring-[#AAFF00] transform scale-[1.02]' 
+              hoveredPlan === plan.priceId 
+                ? 'transform scale-[1.02]' 
                 : ''
             }`}
           >
@@ -130,7 +130,7 @@ export function PricingSection() {
               </ul>
               <button
                 onClick={() => handleSubscribe(plan.priceId)}
-                className={`w-full py-3 rounded-full font-medium transition-colors mt-8 ${
+                className={`w-full py-3 rounded-full font-medium transition-colors ${
                   plan.isPopular || hoveredPlan === plan.priceId
                     ? 'bg-[#AAFF00] text-black hover:bg-[#88CC00]'
                     : 'bg-gray-800 text-white hover:bg-gray-700'

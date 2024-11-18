@@ -41,7 +41,9 @@ export function HeroSection() {
               placeholder="example@gmail.com"
               className="flex-1 bg-transparent px-4 py-2.5 outline-none rounded-lg text-sm md:text-base w-full"
             />
-            <BetaButton className="px-4 py-2.5 rounded-lg text-sm md:text-base whitespace-nowrap" />
+            <BetaButton className="px-4 py-2.5 rounded-lg text-sm md:text-base whitespace-nowrap">
+              Присоединиться
+            </BetaButton>
           </div>
           
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 text-xs md:text-sm text-gray-400">

@@ -5,7 +5,14 @@ export interface User {
   photoURL: string | null;
   createdAt: Date;
   subscription: UserSubscription;
-  paypalEmail?: string; // Добавляем поле для PayPal email
+  paypalEmail?: string;
+  stats?: UserStats;
+}
+
+export interface UserStats {
+  scriptsGenerated: number;
+  videosAnalyzed: number;
+  lastScriptDate?: Date;
 }
 
 export interface UserSubscription {

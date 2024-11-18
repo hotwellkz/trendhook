@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { aiService } from '../../services/ai';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -11,6 +12,7 @@ import { ScriptResult } from './ScriptResult';
 
 export function ScriptGenerator() {
   const { user } = useAuth();
+  const [showForm, setShowForm] = useState(false);
   const [topic, setTopic] = useState('');
   const [duration, setDuration] = useState('60');
   const [style, setStyle] = useState('');
@@ -92,8 +94,20 @@ export function ScriptGenerator() {
     }
   };
 
+  if (!showForm) {
+    return (
+      <button
+        onClick={() => setShowForm(true)}
+        className="flex items-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors"
+      >
+        <Plus className="w-5 h-5" />
+        <span>Создать новый сценарий</span>
+      </button>
+    );
+  }
+
   return (
-    <div className="bg-gray-800/30 rounded-xl p-6 mt-8">
+    <div className="bg-black/20 backdrop-blur-sm rounded-2xl p-8">
       <form onSubmit={handleGenerate} className="space-y-6">
         <FormInput
           label="Тема видео"

@@ -41,7 +41,7 @@ export const createUser = async (userId: string, userData: CreateUserData): Prom
       subscription: {
         ...subscription,
         expiresAt: Timestamp.fromDate(subscription.expiresAt),
-        lastUpdated: Timestamp.fromDate(subscription.lastUpdated)
+        lastUpdated: subscription.lastUpdated ? Timestamp.fromDate(subscription.lastUpdated) : null
       }
     });
     
@@ -70,7 +70,7 @@ export const getUser = async (userId: string): Promise<User | null> => {
         plan: data.subscription?.plan || 'free',
         tokensLeft: data.subscription?.tokensLeft || 10,
         expiresAt: data.subscription?.expiresAt.toDate() || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        lastUpdated: data.subscription?.lastUpdated?.toDate()
+        lastUpdated: data.subscription?.lastUpdated?.toDate() || null
       }
     } as User;
   } catch (error) {

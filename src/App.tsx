@@ -22,6 +22,7 @@ import { CookiesPolicy } from './components/CookiesPolicy';
 import { TermsConditions } from './components/TermsConditions';
 import SubscribersPage from './components/SubscribersPage';
 import { ProfileEditPage } from './components/ProfileEditPage';
+import { PartnersPage } from './components/PartnersPage';
 
 function HomePage() {
   return (
@@ -59,6 +60,7 @@ function App() {
           <Route path="/terms" element={<TermsConditions />} />
           <Route path="/subscribers" element={<SubscribersPage />} />
           <Route path="/profile/edit" element={<ProfileEditPage />} />
+          <Route path="/partners" element={<PartnersPage />} />
         </Routes>
       </div>
     </Router>

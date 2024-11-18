@@ -6,13 +6,13 @@ interface BetaButtonProps {
   children?: React.ReactNode;
 }
 
-export function BetaButton({ className = '', children = 'Присоединиться к бете' }: BetaButtonProps) {
+export function BetaButton({ className = '', children = 'Присоединиться' }: BetaButtonProps) {
   const navigate = useNavigate();
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    navigate('/login');
+    navigate('/signup');
   };
 
   return (

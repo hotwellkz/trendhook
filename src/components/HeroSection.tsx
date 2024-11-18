@@ -49,6 +49,10 @@ export function HeroSection() {
             </div>
           </div>
         </div>
+
+        <div className="text-xs md:text-sm text-gray-400 mt-8">
+          Уже используют TrendVideo? <a href="https://app.trendvideo.online" className="text-[#AAFF00] hover:underline">Войти</a>
+        </div>
       </motion.div>
     </section>
   );

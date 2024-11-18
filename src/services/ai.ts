@@ -1,5 +1,13 @@
 import type { ChatCompletionMessageParam } from 'openai/resources/chat';
 
+interface GenerateScriptParams {
+  topic: string;
+  duration: number;
+  style: string;
+  targetAudience: string;
+  objective: string;
+}
+
 const callOpenAIProxy = async (prompt: string) => {
   const response = await fetch('/.netlify/functions/openai-proxy', {
     method: 'POST',
@@ -24,7 +32,7 @@ export const aiService = {
     style,
     targetAudience,
     objective
-  }) {
+  }: GenerateScriptParams): Promise<string> {
     try {
       const prompt = `Создай сценарий для короткого видео со следующими параметрами:
         Тема: ${topic}
@@ -49,7 +57,7 @@ export const aiService = {
     }
   },
 
-  async analyzeViralPotential(script: string) {
+  async analyzeViralPotential(script: string): Promise<string> {
     try {
       const prompt = `Проанализируй следующий сценарий видео и оцени его вирусный потенциал:
 
@@ -72,7 +80,7 @@ export const aiService = {
     }
   },
 
-  async generateHookVariations(topic: string, targetAudience: string) {
+  async generateHookVariations(topic: string, targetAudience: string): Promise<string> {
     try {
       const prompt = `Создай 5 вариантов хуков для видео на тему "${topic}" для аудитории "${targetAudience}".
       

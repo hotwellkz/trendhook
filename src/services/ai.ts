@@ -1,23 +1,21 @@
-import OpenAI from 'openai';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat';
 
-const getOpenAIClient = () => {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error('OpenAI API key is not configured. Please check your environment variables.');
-  }
-  return new OpenAI({
-    apiKey,
-    dangerouslyAllowBrowser: true
+const callOpenAIProxy = async (prompt: string) => {
+  const response = await fetch('/.netlify/functions/openai-proxy', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ prompt })
   });
-};
 
-interface GenerateScriptParams {
-  topic: string;
-  duration: number;
-  style: string;
-  targetAudience: string;
-  objective: string;
-}
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to call OpenAI API');
+  }
+
+  return response.json();
+};
 
 export const aiService = {
   async generateScript({
@@ -26,10 +24,8 @@ export const aiService = {
     style,
     targetAudience,
     objective
-  }: GenerateScriptParams) {
+  }) {
     try {
-      const openai = getOpenAIClient();
-      
       const prompt = `Создай сценарий для короткого видео со следующими параметрами:
         Тема: ${topic}
         Длительность: ${duration} секунд
@@ -43,40 +39,18 @@ export const aiService = {
         3. Призыв к действию
         4. Рекомендации по визуальному оформлению`;
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { 
-            role: "system", 
-            content: "Ты - эксперт по созданию вирусных коротких видео. Твоя задача - создавать эффективные сценарии, которые привлекают внимание и удерживают зрителя." 
-          },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.7,
-      });
-
-      if (!completion.choices[0]?.message?.content) {
-        throw new Error('Не удалось получить ответ от OpenAI API');
-      }
-
-      return completion.choices[0].message.content;
+      const response = await callOpenAIProxy(prompt);
+      return response.content;
     } catch (error) {
       if (error instanceof Error) {
-        if (error.message.includes('API key')) {
-          throw new Error('Ошибка авторизации API. Пожалуйста, проверьте настройки API ключа.');
-        }
-        if (error.message.includes('Rate limit')) {
-          throw new Error('Превышен лимит запросов к API. Пожалуйста, подождите немного и попробуйте снова.');
-        }
+        throw new Error(`Ошибка генерации сценария: ${error.message}`);
       }
-      throw new Error('Произошла ошибка при генерации сценария. Пожалуйста, попробуйте позже.');
+      throw new Error('Произошла ошибка при генерации сценария');
     }
   },
 
   async analyzeViralPotential(script: string) {
     try {
-      const openai = getOpenAIClient();
-      
       const prompt = `Проанализируй следующий сценарий видео и оцени его вирусный потенциал:
 
       ${script}
@@ -88,40 +62,18 @@ export const aiService = {
       4. Потенциал вовлечения (лайки, комментарии, репосты)
       5. Рекомендации по улучшению`;
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { 
-            role: "system", 
-            content: "Ты - аналитик вирусного контента. Твоя задача - оценивать потенциал видео и давать рекомендации по улучшению." 
-          },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.3,
-      });
-
-      if (!completion.choices[0]?.message?.content) {
-        throw new Error('Не удалось получить ответ от OpenAI API');
-      }
-
-      return completion.choices[0].message.content;
+      const response = await callOpenAIProxy(prompt);
+      return response.content;
     } catch (error) {
       if (error instanceof Error) {
-        if (error.message.includes('API key')) {
-          throw new Error('Ошибка авторизации API. Пожалуйста, проверьте настройки API ключа.');
-        }
-        if (error.message.includes('Rate limit')) {
-          throw new Error('Превышен лимит запросов к API. Пожалуйста, подождите немного и попробуйте снова.');
-        }
+        throw new Error(`Ошибка анализа: ${error.message}`);
       }
-      throw new Error('Произошла ошибка при анализе потенциала. Пожалуйста, попробуйте позже.');
+      throw new Error('Произошла ошибка при анализе потенциала');
     }
   },
 
   async generateHookVariations(topic: string, targetAudience: string) {
     try {
-      const openai = getOpenAIClient();
-      
       const prompt = `Создай 5 вариантов хуков для видео на тему "${topic}" для аудитории "${targetAudience}".
       
       Каждый хук должен быть:
@@ -134,33 +86,13 @@ export const aiService = {
       2. [Тип хука] Текст хука
       и т.д.`;
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { 
-            role: "system", 
-            content: "Ты - эксперт по созданию цепляющих хуков для коротких видео. Твоя задача - создавать хуки, которые заставляют зрителя остановиться и начать смотреть." 
-          },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.9,
-      });
-
-      if (!completion.choices[0]?.message?.content) {
-        throw new Error('Не удалось получить ответ от OpenAI API');
-      }
-
-      return completion.choices[0].message.content;
+      const response = await callOpenAIProxy(prompt);
+      return response.content;
     } catch (error) {
       if (error instanceof Error) {
-        if (error.message.includes('API key')) {
-          throw new Error('Ошибка авторизации API. Пожалуйста, проверьте настройки API ключа.');
-        }
-        if (error.message.includes('Rate limit')) {
-          throw new Error('Превышен лимит запросов к API. Пожалуйста, подождите немного и попробуйте снова.');
-        }
+        throw new Error(`Ошибка генерации хуков: ${error.message}`);
       }
-      throw new Error('Произошла ошибка при генерации вариантов хуков. Пожалуйста, попробуйте позже.');
+      throw new Error('Произошла ошибка при генерации вариантов хуков');
     }
   }
 };

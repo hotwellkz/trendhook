@@ -1,18 +1,23 @@
 import { loadStripe } from '@stripe/stripe-js';
-import { db } from '../config/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
 
-// Инициализация Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Создаем один экземпляр Stripe
+let stripePromise: Promise<any> | null = null;
+
+export const getStripe = () => {
+  if (!stripePromise) {
+    stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+  }
+  return stripePromise;
+};
 
 export const stripeService = {
-  // Создание сессии оплаты
+  getStripe,
+  
   async createCheckoutSession(userId: string, priceId: string) {
     try {
-      const stripe = await stripePromise;
+      const stripe = await getStripe();
       if (!stripe) throw new Error('Stripe не инициализирован');
 
-      // Создаем сессию через Cloud Function (нужно будет настроить)
       const response = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -26,34 +31,48 @@ export const stripeService = {
 
       const session = await response.json();
 
-      // Перенаправляем на страницу оплаты Stripe
-      const result = await stripe.redirectToCheckout({
+      if (session.error) {
+        throw new Error(session.error);
+      }
+
+      const { error } = await stripe.redirectToCheckout({
         sessionId: session.id,
       });
 
-      if (result.error) {
-        throw new Error(result.error.message);
+      if (error) {
+        throw error;
       }
     } catch (error) {
-      console.error('Error creating checkout session:', error);
+      console.error('Ошибка создания сессии:', error);
       throw error;
     }
   },
 
-  // Обновление статуса подписки пользователя
   async updateSubscriptionStatus(userId: string, status: string) {
     try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        'subscription.status': status,
+      const response = await fetch('/.netlify/functions/update-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          status,
+        }),
       });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error);
+      }
+
+      return result;
     } catch (error) {
-      console.error('Error updating subscription status:', error);
+      console.error('Ошибка обновления статуса подписки:', error);
       throw error;
     }
   },
 
-  // Получение информации о подписке
   async getSubscriptionInfo(subscriptionId: string) {
     try {
       const response = await fetch('/.netlify/functions/get-subscription', {
@@ -66,9 +85,14 @@ export const stripeService = {
         }),
       });
 
-      return await response.json();
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error);
+      }
+
+      return result;
     } catch (error) {
-      console.error('Error getting subscription info:', error);
+      console.error('Ошибка получения информации о подписке:', error);
       throw error;
     }
   },

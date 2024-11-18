@@ -3,24 +3,40 @@ import {
   doc,
   getDoc,
   setDoc,
-  Timestamp
+  Timestamp,
+  DocumentData
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { User } from '../types/database';
 
-export const createUser = async (userId: string, userData: Partial<User>) => {
+interface CreateUserData extends Omit<User, 'id' | 'subscription'> {
+  id?: string;
+  subscription?: Partial<User['subscription']>;
+}
+
+export const createUser = async (userId: string, userData: CreateUserData): Promise<User> => {
   try {
     const userRef = doc(db, 'users', userId);
-    const data = {
+    const data: User = {
       ...userData,
-      createdAt: Timestamp.now(),
+      id: userId,
+      createdAt: new Date(),
       subscription: {
         plan: 'free',
         tokensLeft: 10,
-        expiresAt: Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       }
     };
-    await setDoc(userRef, data);
+    
+    await setDoc(userRef, {
+      ...data,
+      createdAt: Timestamp.fromDate(data.createdAt),
+      subscription: {
+        ...data.subscription,
+        expiresAt: Timestamp.fromDate(data.subscription.expiresAt)
+      }
+    });
+    
     return data;
   } catch (error) {
     console.error('Error creating user:', error);
@@ -37,16 +53,18 @@ export const getUser = async (userId: string): Promise<User | null> => {
       return null;
     }
 
-    const userData = userSnap.data() as User;
+    const data = userSnap.data();
     return {
-      ...userData,
+      ...data,
       id: userId,
-      subscription: userData.subscription || {
-        plan: 'free',
-        tokensLeft: 10,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      createdAt: data.createdAt.toDate(),
+      subscription: {
+        plan: data.subscription?.plan || 'free',
+        tokensLeft: data.subscription?.tokensLeft || 10,
+        expiresAt: data.subscription?.expiresAt.toDate() || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        lastUpdated: data.subscription?.lastUpdated?.toDate()
       }
-    };
+    } as User;
   } catch (error) {
     console.error('Error getting user:', error);
     throw new Error('Не удалось получить данные пользователя');

@@ -46,7 +46,7 @@ export function FormSelect({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-[#0D0F12] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
+          className="w-full bg-black/40 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
           placeholder={placeholder}
           required={required}
           disabled={disabled}
@@ -56,7 +56,7 @@ export function FormSelect({
           <button
             type="button"
             onClick={() => !disabled && setIsOpen(!isOpen)}
-            className="w-full bg-[#0D0F12] rounded-lg px-4 py-3 text-left text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 flex justify-between items-center disabled:opacity-50"
+            className="w-full bg-black/40 rounded-lg px-4 py-3 text-left text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 flex justify-between items-center disabled:opacity-50"
             disabled={disabled}
           >
             <span className={value ? 'text-white' : 'text-gray-500'}>
@@ -66,7 +66,7 @@ export function FormSelect({
           </button>
 
           {isOpen && (
-            <div className="absolute z-10 w-full mt-1 bg-[#0D0F12] rounded-lg shadow-lg border border-gray-800 py-1">
+            <div className="absolute z-10 w-full mt-1 bg-black/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-800 py-1">
               {options.map((option) => (
                 <button
                   key={option}

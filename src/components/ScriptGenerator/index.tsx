@@ -111,15 +111,13 @@ export function ScriptGenerator() {
 
   if (!showForm) {
     return (
-      <div className="w-full">
-        <button
-          onClick={() => setShowForm(true)}
-          className="inline-flex items-center gap-2 bg-[#AAFF00] hover:bg-[#88CC00] text-black font-medium px-6 py-3 rounded-xl transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Создать новый сценарий</span>
-        </button>
-      </div>
+      <button
+        onClick={() => setShowForm(true)}
+        className="inline-flex items-center gap-2 bg-[#AAFF00] hover:bg-[#88CC00] text-black font-medium px-6 py-3 rounded-xl transition-colors"
+      >
+        <Plus className="w-5 h-5" />
+        <span>Создать новый сценарий</span>
+      </button>
     );
   }
 

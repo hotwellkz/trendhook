@@ -36,10 +36,10 @@ export function HowToSection() {
           создавая вирусные видео быстрее, чем когда-либо.
         </p>
         <button 
-          onClick={() => navigate('/login')}
+          onClick={() => navigate('/signup')}
           className="bg-[#AAFF00] text-black px-8 py-3 rounded-full font-medium hover:bg-[#88CC00] transition-colors"
         >
-          Присоединиться к бете
+          Присоединиться
         </button>
       </div>
 

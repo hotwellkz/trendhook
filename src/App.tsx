@@ -20,7 +20,7 @@ import { BillingPage } from './components/BillingPage';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { CookiesPolicy } from './components/CookiesPolicy';
 import { TermsConditions } from './components/TermsConditions';
-import { SubscribersPage } from './components/SubscribersPage';
+import SubscribersPage from './components/SubscribersPage';
 import { ProfileEditPage } from './components/ProfileEditPage';
 
 function HomePage() {

@@ -26,8 +26,8 @@ const handler: Handler = async (event) => {
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.URL}/pricing`,
+      success_url: `${process.env.SITE_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.SITE_URL}/pricing`,
       client_reference_id: userId,
     });
 

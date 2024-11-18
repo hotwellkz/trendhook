@@ -1,3 +1,27 @@
-# trendhook
+# ViralHooks
 
-[Edit in StackBlitz next generation editor ⚡️](https://stackblitz.com/~/github.com/hotwellkz/trendhook)
+## Настройка окружения
+
+1. Создайте файл `.env` на основе `.env.example`:
+```bash
+cp .env.example .env
+```
+
+2. Заполните переменные окружения в файле `.env`:
+- Firebase конфигурация из консоли Firebase
+- OpenAI API ключ из панели управления OpenAI
+- Stripe ключи из панели управления Stripe
+
+3. Установите зависимости:
+```bash
+npm install
+```
+
+4. Запустите проект:
+```bash
+npm run dev
+```
+
+## Деплой
+
+Проект настроен для деплоя на Netlify. Убедитесь, что все переменные окружения добавлены в настройках Netlify.

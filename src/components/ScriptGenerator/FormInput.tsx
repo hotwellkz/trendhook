@@ -24,15 +24,15 @@ export function FormInput({
   max
 }: FormInputProps) {
   return (
-    <div className="space-y-2">
-      <label className="block text-white text-base">
+    <div className="space-y-2 bg-black/20 p-4 rounded-xl">
+      <label className="block text-white text-base font-medium">
         {label}
       </label>
       <input
         type={type}
         value={value}
         onChange={onChange}
-        className="w-full bg-[#0D0F12] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
+        className="w-full bg-black/40 rounded-lg px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-800/50"
         placeholder={placeholder}
         required={required}
         disabled={disabled}

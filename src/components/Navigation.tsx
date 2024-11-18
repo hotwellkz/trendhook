@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import { Activity, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BetaButton } from './BetaButton';
+import { useNavigate } from 'react-router-dom';
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const menuItems = [
-    { label: 'Особенности', href: '#features' },
-    { label: 'Цены', href: '#pricing' },
-    { label: 'О нас', href: '#about' },
-    { label: 'Блог', href: 'https://blog.trendvideo.online' },
+    { label: 'Цены', onClick: () => navigate('/billing') }
   ];
 
   return (
@@ -26,15 +25,13 @@ export function Navigation() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             {menuItems.map((item) => (
-              <a
+              <button
                 key={item.label}
-                href={item.href}
+                onClick={item.onClick}
                 className="text-gray-300 hover:text-white transition-colors"
-                target={item.href.startsWith('http') ? '_blank' : undefined}
-                rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
               >
                 {item.label}
-              </a>
+              </button>
             ))}
             <BetaButton className="px-6 py-2 rounded-full" />
           </div>
@@ -66,16 +63,16 @@ export function Navigation() {
           >
             <div className="px-4 py-4 space-y-4">
               {menuItems.map((item) => (
-                <a
+                <button
                   key={item.label}
-                  href={item.href}
-                  className="block text-gray-300 hover:text-white transition-colors py-2"
-                  onClick={() => setIsMenuOpen(false)}
-                  target={item.href.startsWith('http') ? '_blank' : undefined}
-                  rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  onClick={() => {
+                    item.onClick();
+                    setIsMenuOpen(false);
+                  }}
+                  className="block text-gray-300 hover:text-white transition-colors py-2 w-full text-left"
                 >
                   {item.label}
-                </a>
+                </button>
               ))}
               <div className="pt-2">
                 <BetaButton className="w-full px-6 py-2 rounded-full" />

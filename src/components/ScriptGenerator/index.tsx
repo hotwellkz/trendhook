@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { aiService } from '../../services/ai';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -27,7 +26,6 @@ const OBJECTIVE_OPTIONS = [
 
 export function ScriptGenerator() {
   const { user } = useAuth();
-  const [showForm, setShowForm] = useState(false);
   const [topic, setTopic] = useState('');
   const [duration, setDuration] = useState('60');
   const [style, setStyle] = useState('');
@@ -108,20 +106,6 @@ export function ScriptGenerator() {
       setLoading(false);
     }
   };
-
-  if (!showForm) {
-    return (
-      <div className="flex justify-center">
-        <button
-          onClick={() => setShowForm(true)}
-          className="inline-flex items-center gap-2 bg-[#AAFF00] hover:bg-[#88CC00] text-black font-medium px-6 py-3 rounded-xl transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Создать новый сценарий</span>
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full bg-gray-800/30 rounded-xl p-6">

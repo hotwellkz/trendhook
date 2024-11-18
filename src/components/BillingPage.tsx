@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, ArrowLeft } from 'lucide-react';
+import { Activity, ArrowLeft, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { stripeService } from '../services/stripe';
@@ -15,6 +15,11 @@ interface PricingPlan {
   description: string;
   features: string[];
   isPopular?: boolean;
+}
+
+interface FAQItem {
+  question: string;
+  answer: string;
 }
 
 function PlanFeature({ text }: PlanFeature) {
@@ -34,6 +39,31 @@ function PlanFeature({ text }: PlanFeature) {
         />
       </svg>
       <span className="text-gray-300">{text}</span>
+    </div>
+  );
+}
+
+function FAQItem({ question, answer }: FAQItem) {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <div className="border-b border-gray-800 last:border-b-0">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full py-4 flex justify-between items-center text-left group transition-colors hover:text-[#AAFF00]"
+      >
+        <span className="text-lg font-semibold pr-8">{question}</span>
+        {isOpen ? (
+          <Minus className="w-5 h-5 text-[#AAFF00]" />
+        ) : (
+          <Plus className="w-5 h-5 text-[#AAFF00] group-hover:rotate-90 transition-transform" />
+        )}
+      </button>
+      {isOpen && (
+        <div className="pb-4 text-gray-400">
+          <p className="pr-8">{answer}</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -81,6 +111,33 @@ const plans: PricingPlan[] = [
       'Эксклюзивная поддержка',
       '30-дневная гарантия возврата'
     ]
+  }
+];
+
+const faqItems: FAQItem[] = [
+  {
+    question: 'Почему ViralHooks отличается от ChatGPT?',
+    answer: 'ViralHooks — это не просто еще одна обертка над AI GPT. Это узкоспециализированный инструмент для создания короткого видео-контента, обученный на тысячах вирусных хитов для создания сценариев, хуков и идей, адаптированных под ваш уникальный голос, стиль и целевую аудиторию.'
+  },
+  {
+    question: 'Может ли ViralHooks помочь создавать аутентичный, не роботизированный контент?',
+    answer: 'Да! ViralHooks анализирует ваш стиль общения и тон голоса, чтобы генерировать контент, который звучит естественно и аутентично. Наши алгоритмы обучены различать человеческий и роботизированный текст, обеспечивая натуральное звучание.'
+  },
+  {
+    question: 'Для кого предназначен ViralHooks?',
+    answer: 'ViralHooks создан для контент-криейторов, владельцев бизнеса и креативных агентств, которые хотят создавать вовлекающий контент быстро и эффективно. Если вы создаете короткие видео для социальных сетей, ViralHooks станет вашим незаменимым помощником.'
+  },
+  {
+    question: 'Что такое ViralHooks?',
+    answer: 'ViralHooks — это AI-платформа для создания вирусного контента, которая помогает создавать захватывающие короткие видео. Она включает библиотеку из более чем 1 миллиона проанализированных вирусных роликов, инструменты для генерации идей и сценариев, а также аналитику для оценки потенциала вирусности.'
+  },
+  {
+    question: 'Есть ли пробный период у ViralHooks?',
+    answer: 'Да! Мы предлагаем 7-дневный бесплатный пробный период для всех новых пользователей. В течение этого времени вы получаете полный доступ ко всем функциям платформы, чтобы оценить её возможности.'
+  },
+  {
+    question: 'Какие условия бесплатного плана и политики возврата?',
+    answer: 'Бесплатный план включает 10 токенов для тестирования платформы. Мы также предлагаем 30-дневную гарантию возврата денег при первой оплате любого тарифного плана. Если вы не удовлетворены результатами, мы вернем вам полную стоимость без лишних вопросов.'
   }
 ];
 
@@ -162,7 +219,7 @@ export function BillingPage() {
         </div>
 
         {/* Выбор плана */}
-        <div className="mb-8">
+        <div className="mb-16">
           <h2 className="text-2xl font-bold text-white mb-8">Сменить план</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {plans.map((plan) => (
@@ -204,6 +261,31 @@ export function BillingPage() {
                   </button>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ секция */}
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-2 mb-8">
+            <svg
+              className="w-6 h-6 text-[#AAFF00]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <h2 className="text-2xl font-bold text-white">Часто задаваемые вопросы</h2>
+          </div>
+          <div className="bg-gray-800/30 rounded-2xl p-6">
+            {faqItems.map((item, index) => (
+              <FAQItem key={index} {...item} />
             ))}
           </div>
         </div>

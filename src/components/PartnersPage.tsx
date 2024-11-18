@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Activity, ArrowLeft, Copy, RefreshCw, ChevronDown } from 'lucide-react';
+import { Activity, ArrowLeft, Copy, RefreshCw, ChevronDown, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 interface FAQItem {
   question: string;
@@ -65,6 +67,9 @@ export function PartnersPage() {
   const { user } = useAuth();
   const [referralLink, setReferralLink] = useState('');
   const [copied, setCopied] = useState(false);
+  const [paypalEmail, setPaypalEmail] = useState(user?.paypalEmail || '');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
 
   const generateReferralLink = () => {
     if (!user?.id) return;
@@ -88,6 +93,26 @@ export function PartnersPage() {
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+    }
+  };
+
+  const updatePaypalEmail = async () => {
+    if (!user?.id || !paypalEmail) return;
+
+    setIsUpdating(true);
+    try {
+      const userRef = doc(db, 'users', user.id);
+      await updateDoc(userRef, {
+        paypalEmail: paypalEmail,
+        updatedAt: new Date()
+      });
+      setUpdateSuccess(true);
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error updating PayPal email:', error);
+      alert('Произошла ошибка при обновлении email');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -190,13 +215,31 @@ export function PartnersPage() {
           <div className="flex flex-col md:flex-row gap-4">
             <input
               type="email"
+              value={paypalEmail}
+              onChange={(e) => setPaypalEmail(e.target.value)}
               placeholder="Введите свой адрес электронной почты PayPal"
               className="flex-1 bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
             />
-            <button className="bg-[#AAFF00] text-black px-6 py-3 rounded-lg font-medium hover:bg-[#88CC00] transition-colors">
-              Обновить
+            <button 
+              onClick={updatePaypalEmail}
+              disabled={isUpdating || !user}
+              className="bg-[#AAFF00] text-black px-6 py-3 rounded-lg font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isUpdating ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Обновление...
+                </>
+              ) : (
+                'Обновить'
+              )}
             </button>
           </div>
+          {updateSuccess && (
+            <p className="text-sm text-green-400 mt-2">
+              PayPal email успешно обновлен!
+            </p>
+          )}
           <p className="text-sm text-gray-400 mt-2">
             Примечание: сюда будут отправлены ваши комиссионные выплаты.
           </p>

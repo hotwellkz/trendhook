@@ -70,35 +70,9 @@ export function PricingSection() {
         return;
       }
 
-      console.log('Starting subscription process...', { userId: user.id, priceId });
-      
-      const response = await fetch('/.netlify/functions/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          priceId: priceId,
-        }),
-      });
-
-      const session = await response.json();
-      console.log('Checkout session created:', session);
-
-      // Перенаправляем на Stripe
-      const stripe = await stripeService.getStripe();
-      if (stripe) {
-        const { error } = await stripe.redirectToCheckout({
-          sessionId: session.id,
-        });
-        if (error) {
-          console.error('Stripe redirect error:', error);
-          alert('Произошла ошибка при переходе к оплате. Пожалуйста, попробуйте позже.');
-        }
-      }
+      await stripeService.createCheckoutSession(user.id, priceId);
     } catch (error) {
-      console.error('Subscription error:', error);
+      console.error('Ошибка подписки:', error);
       alert('Произошла ошибка при создании подписки. Пожалуйста, попробуйте позже.');
     }
   };

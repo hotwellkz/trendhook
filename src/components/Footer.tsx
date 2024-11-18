@@ -27,10 +27,10 @@ export function Footer() {
               <span className="text-xl font-bold">TrendVideo</span>
             </div>
             <p className="text-gray-400 mb-4">
-              Создано с ❤️ от Pitch Liew
+              Создано Studoz. inc
             </p>
             <p className="text-gray-400">
-              От Создателей, Для Создателей
+              2024
             </p>
           </div>
           

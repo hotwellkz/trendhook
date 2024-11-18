@@ -67,26 +67,30 @@ export function HeroSection() {
         </div>
 
         {/* Бегущая строка */}
-        <div className="relative overflow-hidden mt-12 py-6 md:py-8 bg-gray-800/30">
+        <div className="relative overflow-hidden mt-12 py-4 bg-black border-y border-gray-800/50">
           <div className="animate-marquee whitespace-nowrap">
-            <span className="text-gray-400 mx-6 text-lg md:text-2xl">Создано для создателей контента</span>
-            <span className="text-[#AAFF00] mx-6 text-lg md:text-2xl">•</span>
-            <span className="text-gray-400 mx-6 text-lg md:text-2xl">владельцев бизнеса</span>
-            <span className="text-[#AAFF00] mx-6 text-lg md:text-2xl">•</span>
-            <span className="text-gray-400 mx-6 text-lg md:text-2xl">креативных агентств</span>
-            <span className="text-[#AAFF00] mx-6 text-lg md:text-2xl">•</span>
-            <span className="text-gray-400 mx-6 text-lg md:text-2xl">и всех, кто создает контент</span>
-            <span className="text-[#AAFF00] mx-6 text-lg md:text-2xl">•</span>
+            <span className="text-gray-400 mx-4 text-lg md:text-2xl">Создано для </span>
+            <span className="text-[#AAFF00] mx-1 text-lg md:text-2xl">создателей</span>
+            <span className="text-gray-400 mx-1 text-lg md:text-2xl">контента</span>
+            <span className="text-gray-400 mx-4 text-lg md:text-2xl">,</span>
+            <span className="text-[#AAFF00] mx-1 text-lg md:text-2xl">владельцев</span>
+            <span className="text-gray-400 mx-1 text-lg md:text-2xl">бизнеса</span>
+            <span className="text-gray-400 mx-4 text-lg md:text-2xl">,</span>
+            <span className="text-gray-400 mx-1 text-lg md:text-2xl">креативных</span>
+            <span className="text-[#AAFF00] mx-1 text-lg md:text-2xl">агентств</span>
+            <span className="text-gray-400 mx-4 text-lg md:text-2xl">и т.д.</span>
           </div>
           <div className="absolute top-0 animate-marquee2 whitespace-nowrap">
-            <span className="text-gray-400 mx-6 text-lg md:text-2xl">Создано для создателей контента</span>
-            <span className="text-[#AAFF00] mx-6 text-lg md:text-2xl">•</span>
-            <span className="text-gray-400 mx-6 text-lg md:text-2xl">владельцев бизнеса</span>
-            <span className="text-[#AAFF00] mx-6 text-lg md:text-2xl">•</span>
-            <span className="text-gray-400 mx-6 text-lg md:text-2xl">креативных агентств</span>
-            <span className="text-[#AAFF00] mx-6 text-lg md:text-2xl">•</span>
-            <span className="text-gray-400 mx-6 text-lg md:text-2xl">и всех, кто создает контент</span>
-            <span className="text-[#AAFF00] mx-6 text-lg md:text-2xl">•</span>
+            <span className="text-gray-400 mx-4 text-lg md:text-2xl">Создано для </span>
+            <span className="text-[#AAFF00] mx-1 text-lg md:text-2xl">создателей</span>
+            <span className="text-gray-400 mx-1 text-lg md:text-2xl">контента</span>
+            <span className="text-gray-400 mx-4 text-lg md:text-2xl">,</span>
+            <span className="text-[#AAFF00] mx-1 text-lg md:text-2xl">владельцев</span>
+            <span className="text-gray-400 mx-1 text-lg md:text-2xl">бизнеса</span>
+            <span className="text-gray-400 mx-4 text-lg md:text-2xl">,</span>
+            <span className="text-gray-400 mx-1 text-lg md:text-2xl">креативных</span>
+            <span className="text-[#AAFF00] mx-1 text-lg md:text-2xl">агентств</span>
+            <span className="text-gray-400 mx-4 text-lg md:text-2xl">и т.д.</span>
           </div>
         </div>
       </motion.div>

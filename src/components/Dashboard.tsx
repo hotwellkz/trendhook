@@ -4,11 +4,13 @@ import { Navigate } from 'react-router-dom';
 import { Activity, LogOut, User, Settings, BarChart2, PlusCircle } from 'lucide-react';
 import { auth } from '../config/firebase';
 import { ScriptGenerator } from './ScriptGenerator';
-import { EnvCheck } from './EnvCheck'; // Добавляем импорт
+import { EnvCheck } from './EnvCheck';
+import { stripeService } from '../services/stripe';
 
 export function Dashboard() {
   const { user, loading } = useAuth();
   const [showGenerator, setShowGenerator] = React.useState(false);
+  const [isUpgrading, setIsUpgrading] = React.useState(false);
 
   if (loading) {
     return (
@@ -27,6 +29,19 @@ export function Dashboard() {
       await auth.signOut();
     } catch (error) {
       console.error('Ошибка при выходе:', error);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    try {
+      setIsUpgrading(true);
+      // Используем цену Business плана по умолчанию
+      await stripeService.createCheckoutSession(user.id, 'price_1QMAzGEcNnO76qBWTTBnFGDA');
+    } catch (error) {
+      console.error('Ошибка при создании сессии:', error);
+      alert('Произошла ошибка. Пожалуйста, попробуйте позже.');
+    } finally {
+      setIsUpgrading(false);
     }
   };
 
@@ -54,7 +69,6 @@ export function Dashboard() {
       </nav>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Добавляем компонент проверки переменных окружения */}
         <EnvCheck />
 
         <div className="mb-8">
@@ -104,8 +118,12 @@ export function Dashboard() {
               <button className="w-full bg-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-600 transition-colors">
                 Изменить профиль
               </button>
-              <button className="w-full bg-[#AAFF00] text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#88CC00] transition-colors">
-                Улучшить план
+              <button
+                onClick={handleUpgrade}
+                disabled={isUpgrading}
+                className="w-full bg-[#AAFF00] text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isUpgrading ? 'Загрузка...' : 'Улучшить план'}
               </button>
             </div>
           </div>

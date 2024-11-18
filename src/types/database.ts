@@ -1,5 +1,4 @@
-// Определяем типы для базы данных
-interface User {
+export interface User {
   id: string;
   email: string;
   displayName: string | null;
@@ -13,7 +12,7 @@ interface User {
   };
 }
 
-interface VideoContent {
+export interface VideoContent {
   id: string;
   author: string;
   followers: string;
@@ -35,14 +34,14 @@ interface VideoContent {
   updatedAt: Date;
 }
 
-interface Bookmark {
+export interface Bookmark {
   id: string;
   userId: string;
   videoId: string;
   createdAt: Date;
 }
 
-interface UserAnalytics {
+export interface UserAnalytics {
   id: string;
   userId: string;
   tokensUsed: number;
@@ -50,11 +49,3 @@ interface UserAnalytics {
   videosAnalyzed: number;
   date: Date;
 }
-
-// Экспортируем все типы
-export type {
-  User,
-  VideoContent,
-  Bookmark,
-  UserAnalytics
-};

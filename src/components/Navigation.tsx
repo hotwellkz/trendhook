@@ -10,6 +10,7 @@ export function Navigation() {
     { label: 'Особенности', href: '#features' },
     { label: 'Цены', href: '#pricing' },
     { label: 'О нас', href: '#about' },
+    { label: 'Блог', href: 'https://blog.trendvideo.online' },
   ];
 
   return (
@@ -19,7 +20,7 @@ export function Navigation() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <Activity className="w-6 h-6 md:w-8 md:h-8 text-[#AAFF00]" />
-            <span className="text-lg md:text-xl font-bold">ViralHooks</span>
+            <span className="text-lg md:text-xl font-bold">TrendVideo</span>
           </div>
 
           {/* Desktop Navigation */}
@@ -29,6 +30,8 @@ export function Navigation() {
                 key={item.label}
                 href={item.href}
                 className="text-gray-300 hover:text-white transition-colors"
+                target={item.href.startsWith('http') ? '_blank' : undefined}
+                rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
               >
                 {item.label}
               </a>
@@ -68,6 +71,8 @@ export function Navigation() {
                   href={item.href}
                   className="block text-gray-300 hover:text-white transition-colors py-2"
                   onClick={() => setIsMenuOpen(false)}
+                  target={item.href.startsWith('http') ? '_blank' : undefined}
+                  rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                 >
                   {item.label}
                 </a>

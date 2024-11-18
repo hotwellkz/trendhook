@@ -1,4 +1,5 @@
-export interface User {
+// Определяем типы для базы данных
+interface User {
   id: string;
   email: string;
   displayName: string | null;
@@ -8,10 +9,11 @@ export interface User {
     plan: 'free' | 'content-creator' | 'business' | 'agency';
     tokensLeft: number;
     expiresAt: Date;
+    lastUpdated?: Date;
   };
 }
 
-export interface VideoContent {
+interface VideoContent {
   id: string;
   author: string;
   followers: string;
@@ -33,14 +35,14 @@ export interface VideoContent {
   updatedAt: Date;
 }
 
-export interface Bookmark {
+interface Bookmark {
   id: string;
   userId: string;
   videoId: string;
   createdAt: Date;
 }
 
-export interface UserAnalytics {
+interface UserAnalytics {
   id: string;
   userId: string;
   tokensUsed: number;
@@ -49,5 +51,10 @@ export interface UserAnalytics {
   date: Date;
 }
 
-// Экспортируем все интерфейсы
-export type { User, VideoContent, Bookmark, UserAnalytics };
+// Экспортируем все типы
+export type {
+  User,
+  VideoContent,
+  Bookmark,
+  UserAnalytics
+};

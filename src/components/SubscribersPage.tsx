@@ -3,7 +3,7 @@ import { Activity, ArrowLeft, Search, Download, Plus, Trash2, Edit2, X, ChevronD
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, deleteDoc, doc, addDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import type { User } from '../types/database';
+import type { User, SubscriptionPlan, SubscriptionStatus } from '../types/database';
 
 interface SubscriberModalProps {
   isOpen: boolean;
@@ -16,8 +16,8 @@ interface SubscriberModalProps {
 function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: SubscriberModalProps) {
   const [email, setEmail] = useState(initialData?.email || '');
   const [displayName, setDisplayName] = useState(initialData?.displayName || '');
-  const [plan, setPlan] = useState(initialData?.subscription?.plan || 'free');
-  const [status, setStatus] = useState(initialData?.subscription?.status || 'trial');
+  const [plan, setPlan] = useState<SubscriptionPlan>(initialData?.subscription?.plan || 'free');
+  const [status, setStatus] = useState<SubscriptionStatus>(initialData?.subscription?.status || 'trial');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +76,7 @@ function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: Subs
             <div className="relative">
               <select
                 value={plan}
-                onChange={(e) => setPlan(e.target.value)}
+                onChange={(e) => setPlan(e.target.value as SubscriptionPlan)}
                 className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50 appearance-none"
               >
                 <option value="free">Бесплатный</option>
@@ -93,7 +93,7 @@ function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: Subs
             <div className="relative">
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) => setStatus(e.target.value as SubscriptionStatus)}
                 className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50 appearance-none"
               >
                 <option value="trial">Пробный период</option>

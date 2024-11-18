@@ -17,6 +17,7 @@ import { AuthPage } from './components/AuthPage';
 import { SignUpPage } from './components/SignUpPage';
 import { Dashboard } from './components/Dashboard';
 import { BillingPage } from './components/BillingPage';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
 
 function HomePage() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/billing" element={<BillingPage />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
         </Routes>
       </div>
     </Router>

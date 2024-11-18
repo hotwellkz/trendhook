@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Instagram } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface VideoCard {
   author: string;
@@ -123,6 +124,8 @@ function VideoCard({ data }: { data: VideoCard }) {
 }
 
 export function RealTimeDataSection() {
+  const navigate = useNavigate();
+
   return (
     <section className="max-w-6xl mx-auto px-4 py-8 md:py-12 lg:py-16">
       {/* Верхняя часть с заголовком */}
@@ -139,7 +142,10 @@ export function RealTimeDataSection() {
           <span className="text-[#AAFF00]">простым и понятным</span>
         </h2>
 
-        <button className="bg-[#AAFF00] text-black px-6 md:px-8 py-2.5 md:py-3 rounded-full font-medium hover:bg-[#88CC00] transition-colors mt-6 md:mt-8 text-sm md:text-base">
+        <button 
+          onClick={() => navigate('/login')}
+          className="bg-[#AAFF00] text-black px-6 md:px-8 py-2.5 md:py-3 rounded-full font-medium hover:bg-[#88CC00] transition-colors mt-6 md:mt-8 text-sm md:text-base"
+        >
           Присоединиться к бете
         </button>
       </div>

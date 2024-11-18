@@ -15,11 +15,14 @@ export function HeroSection() {
         transition={{ duration: 0.6 }}
         className="space-y-6 md:space-y-8"
       >
-        <div className="inline-block bg-gray-800/50 rounded-full px-3 py-1.5 md:px-4 md:py-2 mb-4 md:mb-6">
+        <button 
+          onClick={() => navigate('/signup')}
+          className="inline-block bg-gray-800/50 rounded-full px-3 py-1.5 md:px-4 md:py-2 mb-4 md:mb-6 hover:bg-gray-800/70 transition-colors"
+        >
           <span className="text-[#AAFF00] text-sm md:text-base whitespace-normal md:whitespace-nowrap px-1">
             Получите доступ к 1М+ роликов специально для вас →
           </span>
-        </div>
+        </button>
         
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 px-2">
           Миллионы вирусных видео
@@ -61,6 +64,30 @@ export function HeroSection() {
           >
             Войти
           </button>
+        </div>
+
+        {/* Бегущая строка */}
+        <div className="relative overflow-hidden mt-12 py-4 bg-gray-800/30">
+          <div className="animate-marquee whitespace-nowrap">
+            <span className="text-gray-400 mx-4">Создано для создателей контента</span>
+            <span className="text-[#AAFF00] mx-4">•</span>
+            <span className="text-gray-400 mx-4">владельцев бизнеса</span>
+            <span className="text-[#AAFF00] mx-4">•</span>
+            <span className="text-gray-400 mx-4">креативных агентств</span>
+            <span className="text-[#AAFF00] mx-4">•</span>
+            <span className="text-gray-400 mx-4">и всех, кто создает контент</span>
+            <span className="text-[#AAFF00] mx-4">•</span>
+          </div>
+          <div className="absolute top-0 animate-marquee2 whitespace-nowrap">
+            <span className="text-gray-400 mx-4">Создано для создателей контента</span>
+            <span className="text-[#AAFF00] mx-4">•</span>
+            <span className="text-gray-400 mx-4">владельцев бизнеса</span>
+            <span className="text-[#AAFF00] mx-4">•</span>
+            <span className="text-gray-400 mx-4">креативных агентств</span>
+            <span className="text-[#AAFF00] mx-4">•</span>
+            <span className="text-gray-400 mx-4">и всех, кто создает контент</span>
+            <span className="text-[#AAFF00] mx-4">•</span>
+          </div>
         </div>
       </motion.div>
     </section>

@@ -6,9 +6,24 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { incrementScriptCount } from '../../services/firestore';
 import { FormInput } from './FormInput';
+import { FormSelect } from './FormSelect';
 import { ErrorMessage } from './ErrorMessage';
 import { GenerateButton } from './GenerateButton';
 import { ScriptResult } from './ScriptResult';
+
+const STYLE_OPTIONS = [
+  'Обучающий',
+  'Развлекательный',
+  'Мотивационный',
+  'Сторителлинг'
+];
+
+const OBJECTIVE_OPTIONS = [
+  'Повышение узнаваемости',
+  'Вовлечение аудитории',
+  'Конверсия',
+  'Обучение'
+];
 
 export function ScriptGenerator() {
   const { user } = useAuth();
@@ -113,7 +128,7 @@ export function ScriptGenerator() {
           label="Тема видео"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          placeholder="О чем будет ваше видео?"
+          placeholder="Например: '5 способов улучшить продуктивность' или 'Секреты успешного бизнеса'"
           required
           disabled={loading}
         />
@@ -129,13 +144,15 @@ export function ScriptGenerator() {
           disabled={loading}
         />
 
-        <FormInput
+        <FormSelect
           label="Стиль"
           value={style}
-          onChange={(e) => setStyle(e.target.value)}
-          placeholder="Например: информативный, развлекательный, обучающий"
+          onChange={setStyle}
+          options={STYLE_OPTIONS}
+          placeholder="Выберите стиль видео"
           required
           disabled={loading}
+          allowCustom
         />
 
         <FormInput
@@ -147,13 +164,15 @@ export function ScriptGenerator() {
           disabled={loading}
         />
 
-        <FormInput
-          label="Цель"
+        <FormSelect
+          label="Цель видео"
           value={objective}
-          onChange={(e) => setObjective(e.target.value)}
-          placeholder="Какой результат вы хотите получить?"
+          onChange={setObjective}
+          options={OBJECTIVE_OPTIONS}
+          placeholder="Выберите цель видео"
           required
           disabled={loading}
+          allowCustom
         />
 
         {error && <ErrorMessage message={error} />}

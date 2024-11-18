@@ -34,10 +34,10 @@ export function CTASection() {
               className="flex-1 bg-transparent px-4 py-2 outline-none rounded-lg text-sm md:text-base w-full sm:w-auto"
             />
             <button 
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/signup')}
               className="bg-[#AAFF00] text-black px-4 md:px-6 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors text-sm md:text-base whitespace-nowrap"
             >
-              Присоединиться к бете
+              Присоединиться
             </button>
           </div>
         </div>

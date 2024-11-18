@@ -7,33 +7,41 @@ import {
   DocumentData
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import type { User } from '../types/database';
+import type { User, UserSubscription, SubscriptionPlan } from '../types/database';
 
-interface CreateUserData extends Omit<User, 'id' | 'subscription'> {
-  id?: string;
-  subscription?: Partial<User['subscription']>;
+interface CreateUserData {
+  email: string;
+  displayName: string | null;
+  photoURL: string | null;
 }
 
 export const createUser = async (userId: string, userData: CreateUserData): Promise<User> => {
   try {
     const userRef = doc(db, 'users', userId);
+    
+    const subscription: UserSubscription = {
+      plan: 'free',
+      tokensLeft: 10,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      lastUpdated: new Date()
+    };
+
     const data: User = {
-      ...userData,
       id: userId,
+      email: userData.email,
+      displayName: userData.displayName,
+      photoURL: userData.photoURL,
       createdAt: new Date(),
-      subscription: {
-        plan: 'free',
-        tokensLeft: 10,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      }
+      subscription
     };
     
     await setDoc(userRef, {
       ...data,
       createdAt: Timestamp.fromDate(data.createdAt),
       subscription: {
-        ...data.subscription,
-        expiresAt: Timestamp.fromDate(data.subscription.expiresAt)
+        ...subscription,
+        expiresAt: Timestamp.fromDate(subscription.expiresAt),
+        lastUpdated: Timestamp.fromDate(subscription.lastUpdated)
       }
     });
     

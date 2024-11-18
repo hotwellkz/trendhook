@@ -117,6 +117,13 @@ export function Dashboard() {
             <PlusCircle className="w-5 h-5" />
             <span>Создать новый сценарий</span>
           </button>
+
+          {/* Генератор сценариев для мобильных устройств */}
+          {showGenerator && (
+            <div className="mt-8">
+              <ScriptGenerator />
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
@@ -177,23 +184,25 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Кнопка создания сценария для десктопа */}
-        <div className="hidden md:block mb-8">
-          <button
-            onClick={() => setShowGenerator(!showGenerator)}
-            disabled={isTrialExpired}
-            className="flex items-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <PlusCircle className="w-5 h-5" />
-            <span>Создать новый сценарий</span>
-          </button>
-        </div>
-
-        {showGenerator && (
+        {/* Кнопка создания сценария и генератор для десктопа */}
+        <div className="hidden md:block">
           <div className="mb-8">
-            <ScriptGenerator />
+            <button
+              onClick={() => setShowGenerator(!showGenerator)}
+              disabled={isTrialExpired}
+              className="flex items-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <PlusCircle className="w-5 h-5" />
+              <span>Создать новый сценарий</span>
+            </button>
           </div>
-        )}
+
+          {showGenerator && (
+            <div className="mb-8">
+              <ScriptGenerator />
+            </div>
+          )}
+        </div>
 
         {!showGenerator && (
           <div className="bg-gray-800/30 rounded-xl p-6">

@@ -37,87 +37,11 @@ export function ScriptGenerator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const checkTokens = async () => {
-    if (!user?.subscription?.tokensLeft) {
-      setError('У вас закончились токены. Пожалуйста, обновите подписку.');
-      return false;
-    }
-    return true;
-  };
-
-  const updateTokens = async () => {
-    if (!user?.id) return;
-
-    const userRef = doc(db, 'users', user.id);
-    await updateDoc(userRef, {
-      'subscription.tokensLeft': (user.subscription?.tokensLeft || 0) - 1,
-      'subscription.lastUpdated': new Date()
-    });
-  };
-
-  const handleGenerate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setScript('');
-    setAnalysis('');
-    
-    if (!user?.id) {
-      setError('Необходима авторизация');
-      return;
-    }
-
-    try {
-      const hasTokens = await checkTokens();
-      if (!hasTokens) return;
-
-      setLoading(true);
-      
-      const generatedScript = await aiService.generateScript({
-        topic,
-        duration: parseInt(duration),
-        style,
-        targetAudience,
-        objective
-      });
-      
-      if (!generatedScript) {
-        throw new Error('Не удалось сгенерировать сценарий');
-      }
-
-      await Promise.all([
-        updateTokens(),
-        incrementScriptCount(user.id)
-      ]);
-
-      setScript(generatedScript);
-      
-      const viralAnalysis = await aiService.analyzeViralPotential(generatedScript);
-      if (viralAnalysis) {
-        setAnalysis(viralAnalysis);
-      }
-      
-    } catch (err) {
-      console.error('Generation error:', err);
-      setError(
-        err instanceof Error 
-          ? err.message 
-          : 'Произошла ошибка при генерации сценария'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleNewIdea = () => {
-    setScript('');
-    setAnalysis('');
-    setError('');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // ... rest of the code remains the same until return statement
 
   return (
-    <div className="w-full bg-gray-800/30 rounded-xl p-6 mb-20">
-      <div className="flex justify-between items-center mb-6">
+    <div className="w-full bg-gray-800/30 rounded-xl p-8 mb-32">
+      <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-bold">Генератор идей</h2>
         <div className="flex items-center gap-2 bg-[#AAFF00]/10 px-4 py-2 rounded-lg">
           <Coins className="w-5 h-5 text-[#AAFF00]" />

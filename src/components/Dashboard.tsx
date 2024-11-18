@@ -34,6 +34,10 @@ export function Dashboard() {
     navigate('/billing');
   };
 
+  const handleEditProfile = () => {
+    navigate('/profile/edit');
+  };
+
   const isTrialExpired = user?.subscription?.status === 'expired';
   const isInTrial = user?.subscription?.status === 'trial';
   const trialDaysLeft = isInTrial && user?.subscription?.trialEndsAt ? 
@@ -140,7 +144,10 @@ export function Dashboard() {
                 <h2 className="text-lg md:text-xl font-semibold">Настройки</h2>
               </div>
               <div className="space-y-3">
-                <button className="w-full bg-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-600 transition-colors">
+                <button 
+                  onClick={handleEditProfile}
+                  className="w-full bg-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-600 transition-colors"
+                >
                   Изменить профиль
                 </button>
                 <button

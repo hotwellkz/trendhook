@@ -1,5 +1,6 @@
 import React from 'react';
 import { Activity } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export function Footer() {
   const socialLinks = [
@@ -10,9 +11,9 @@ export function Footer() {
   ];
 
   const legalLinks = [
-    { name: 'Политика конфиденциальности', href: 'https://trendvideo.online/privacy' },
-    { name: 'Политика cookies', href: 'https://trendvideo.online/cookies' },
-    { name: 'Условия использования', href: 'https://trendvideo.online/terms' }
+    { name: 'Политика конфиденциальности', href: '/privacy' },
+    { name: 'Политика cookies', href: '/cookies' },
+    { name: 'Условия использования', href: '/terms' }
   ];
 
   return (
@@ -73,13 +74,13 @@ export function Footer() {
             {/* Правовые ссылки */}
             <div className="flex flex-wrap gap-4 justify-center text-sm">
               {legalLinks.map((link) => (
-                <a
+                <Link
                   key={link.name}
-                  href={link.href}
+                  to={link.href}
                   className="text-gray-400 hover:text-white transition-colors whitespace-nowrap"
                 >
                   {link.name}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

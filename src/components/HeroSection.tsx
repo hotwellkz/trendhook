@@ -24,7 +24,7 @@ export function HeroSection() {
           </span>
         </button>
         
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 px-2">
+        <h1 className="text-5xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 px-2">
           Миллионы вирусных видео
           <br className="hidden md:block" />
           <span className="text-[#AAFF00]"> у вас в кармане</span>

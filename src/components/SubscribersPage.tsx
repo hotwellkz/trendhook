@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, ArrowLeft, Search, Download, Filter, Plus, Trash2, Edit2, X } from 'lucide-react';
+import { Activity, ArrowLeft, Search, Download, Plus, Trash2, Edit2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { collection, query, getDocs, orderBy, deleteDoc, doc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { User } from '../types/database';
+import { User, SubscriptionPlan, SubscriptionStatus } from '../types/database';
 
 interface SubscriberData extends User {
   lastActive?: Date;
@@ -21,8 +21,8 @@ interface ModalProps {
 function Modal({ isOpen, onClose, onSubmit, initialData, title }: ModalProps) {
   const [email, setEmail] = useState(initialData?.email || '');
   const [displayName, setDisplayName] = useState(initialData?.displayName || '');
-  const [plan, setPlan] = useState(initialData?.subscription?.plan || 'free');
-  const [status, setStatus] = useState(initialData?.subscription?.status || 'trial');
+  const [plan, setPlan] = useState<SubscriptionPlan>(initialData?.subscription?.plan || 'free');
+  const [status, setStatus] = useState<SubscriptionStatus>(initialData?.subscription?.status || 'trial');
   const [tokens, setTokens] = useState(initialData?.subscription?.tokensLeft?.toString() || '10');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -81,7 +81,7 @@ function Modal({ isOpen, onClose, onSubmit, initialData, title }: ModalProps) {
             <label className="block text-sm font-medium text-gray-300 mb-1">План</label>
             <select
               value={plan}
-              onChange={(e) => setPlan(e.target.value)}
+              onChange={(e) => setPlan(e.target.value as SubscriptionPlan)}
               className="w-full bg-gray-900 rounded-lg px-4 py-2 text-white"
             >
               <option value="free">Бесплатный</option>
@@ -95,12 +95,13 @@ function Modal({ isOpen, onClose, onSubmit, initialData, title }: ModalProps) {
             <label className="block text-sm font-medium text-gray-300 mb-1">Статус</label>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              onChange={(e) => setStatus(e.target.value as SubscriptionStatus)}
               className="w-full bg-gray-900 rounded-lg px-4 py-2 text-white"
             >
               <option value="trial">Пробный период</option>
               <option value="active">Активный</option>
               <option value="expired">Истёк</option>
+              <option value="cancelled">Отменён</option>
             </select>
           </div>
 

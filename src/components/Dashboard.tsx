@@ -1,16 +1,15 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Activity, LogOut, User, Settings, BarChart2, PlusCircle } from 'lucide-react';
 import { auth } from '../config/firebase';
 import { ScriptGenerator } from './ScriptGenerator';
 import { EnvCheck } from './EnvCheck';
-import { stripeService } from '../services/stripe';
 
 export function Dashboard() {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [showGenerator, setShowGenerator] = React.useState(false);
-  const [isUpgrading, setIsUpgrading] = React.useState(false);
 
   if (loading) {
     return (
@@ -32,17 +31,8 @@ export function Dashboard() {
     }
   };
 
-  const handleUpgrade = async () => {
-    try {
-      setIsUpgrading(true);
-      // Используем цену Business плана по умолчанию
-      await stripeService.createCheckoutSession(user.id, 'price_1QMAzGEcNnO76qBWTTBnFGDA');
-    } catch (error) {
-      console.error('Ошибка при создании сессии:', error);
-      alert('Произошла ошибка. Пожалуйста, попробуйте позже.');
-    } finally {
-      setIsUpgrading(false);
-    }
+  const handleUpgrade = () => {
+    navigate('/billing');
   };
 
   return (
@@ -120,10 +110,9 @@ export function Dashboard() {
               </button>
               <button
                 onClick={handleUpgrade}
-                disabled={isUpgrading}
-                className="w-full bg-[#AAFF00] text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#AAFF00] text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#88CC00] transition-colors"
               >
-                {isUpgrading ? 'Загрузка...' : 'Улучшить план'}
+                Улучшить план
               </button>
             </div>
           </div>

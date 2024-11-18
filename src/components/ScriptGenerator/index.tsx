@@ -9,6 +9,7 @@ import { FormSelect } from './FormSelect';
 import { ErrorMessage } from './ErrorMessage';
 import { GenerateButton } from './GenerateButton';
 import { ScriptResult } from './ScriptResult';
+import { Coins } from 'lucide-react';
 
 const STYLE_OPTIONS = [
   'Обучающий',
@@ -108,7 +109,17 @@ export function ScriptGenerator() {
   };
 
   return (
-    <div className="w-full bg-gray-800/30 rounded-xl p-6">
+    <div className="w-full bg-gray-800/30 rounded-xl p-6 mb-12">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Генератор идей</h2>
+        <div className="flex items-center gap-2 bg-[#AAFF00]/10 px-4 py-2 rounded-lg">
+          <Coins className="w-5 h-5 text-[#AAFF00]" />
+          <span className="text-[#AAFF00] font-medium">
+            {user?.subscription?.tokensLeft || 0} токенов осталось
+          </span>
+        </div>
+      </div>
+
       <form onSubmit={handleGenerate} className="space-y-6">
         <FormInput
           label="Тема видео"
@@ -145,7 +156,7 @@ export function ScriptGenerator() {
           label="Целевая аудитория"
           value={targetAudience}
           onChange={(e) => setTargetAudience(e.target.value)}
-          placeholder="Кто ваша целевая аудитория?"
+          placeholder="Например: 'Предприниматели 25-45 лет' или 'Студенты, интересующиеся саморазвитием'"
           required
           disabled={loading}
         />

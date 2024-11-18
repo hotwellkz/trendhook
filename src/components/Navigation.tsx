@@ -9,7 +9,8 @@ export function Navigation() {
   const navigate = useNavigate();
 
   const menuItems = [
-    { label: 'Цены', onClick: () => navigate('/billing') }
+    { label: 'Цены', onClick: () => navigate('/billing') },
+    { label: 'Партнерам', onClick: () => navigate('/partners') }
   ];
 
   return (

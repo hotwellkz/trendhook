@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface FAQItem {
   question: string;
@@ -65,6 +66,8 @@ function FAQItem({ question, answer }: FAQItem) {
 }
 
 export function FAQSection() {
+  const navigate = useNavigate();
+
   return (
     <section className="max-w-6xl mx-auto px-4 py-12 md:py-16 lg:py-20">
       <div className="text-center mb-8 md:mb-12 lg:mb-16">
@@ -77,7 +80,10 @@ export function FAQSection() {
         <p className="text-gray-400 text-base md:text-lg lg:text-xl max-w-2xl mx-auto px-4">
           Все наши планы включают бесплатный уровень с 10 токенами и 30-дневный возврат средств при первой оплате.
         </p>
-        <button className="bg-[#AAFF00] text-black px-6 md:px-8 py-2.5 md:py-3 rounded-full font-medium hover:bg-[#88CC00] transition-colors mt-6 md:mt-8 text-sm md:text-base">
+        <button 
+          onClick={() => navigate('/login')}
+          className="bg-[#AAFF00] text-black px-6 md:px-8 py-2.5 md:py-3 rounded-full font-medium hover:bg-[#88CC00] transition-colors mt-6 md:mt-8 text-sm md:text-base"
+        >
           Присоединиться к бете
         </button>
       </div>

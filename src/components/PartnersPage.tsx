@@ -1,11 +1,36 @@
 import React, { useState } from 'react';
-import { Activity, ArrowLeft, Copy, RefreshCw } from 'lucide-react';
+import { Activity, ArrowLeft, Copy, RefreshCw, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 interface FAQItem {
   question: string;
   answer: string;
+}
+
+interface FAQAccordionProps {
+  item: FAQItem;
+}
+
+function FAQAccordion({ item }: FAQAccordionProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="border-b border-gray-700 last:border-0">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full py-4 flex justify-between items-center text-left hover:text-[#AAFF00] transition-colors group"
+      >
+        <h3 className="font-semibold pr-8">{item.question}</h3>
+        <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''} text-gray-400 group-hover:text-[#AAFF00]`} />
+      </button>
+      {isOpen && (
+        <div className="pb-4 text-gray-400">
+          <p>{item.answer}</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 const faqItems: FAQItem[] = [
@@ -81,7 +106,7 @@ export function PartnersPage() {
         </div>
       </nav>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8 pb-20">
         <h1 className="text-2xl md:text-3xl font-bold mb-8">Панель инструментов для партнеров</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
@@ -163,12 +188,9 @@ export function PartnersPage() {
 
         <div className="bg-gray-800/30 rounded-xl p-6">
           <h2 className="text-xl font-bold mb-6">Часто задаваемые вопросы</h2>
-          <div className="space-y-4">
+          <div className="space-y-2">
             {faqItems.map((item, index) => (
-              <div key={index} className="border-b border-gray-700 last:border-0 pb-4 last:pb-0">
-                <h3 className="font-semibold mb-2">{item.question}</h3>
-                <p className="text-gray-400">{item.answer}</p>
-              </div>
+              <FAQAccordion key={index} item={item} />
             ))}
           </div>
         </div>

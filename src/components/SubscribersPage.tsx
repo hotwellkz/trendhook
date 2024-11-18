@@ -17,6 +17,7 @@ interface SubscriberModalProps {
 function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: SubscriberModalProps) {
   const [email, setEmail] = useState(initialData?.email || '');
   const [displayName, setDisplayName] = useState(initialData?.displayName || '');
+  const [paypalEmail, setPaypalEmail] = useState(initialData?.paypalEmail || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -24,6 +25,7 @@ function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: Subs
     if (initialData) {
       setEmail(initialData.email);
       setDisplayName(initialData.displayName || '');
+      setPaypalEmail(initialData.paypalEmail || '');
     }
   }, [initialData]);
 
@@ -36,6 +38,7 @@ function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: Subs
       await onSubmit({
         email,
         displayName,
+        paypalEmail
       });
       onClose();
     } catch (err) {
@@ -86,6 +89,20 @@ function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: Subs
               onChange={(e) => setDisplayName(e.target.value)}
               className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
               required
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              PayPal Email
+            </label>
+            <input
+              type="email"
+              value={paypalEmail}
+              onChange={(e) => setPaypalEmail(e.target.value)}
+              className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
+              placeholder="Email для выплат PayPal"
               disabled={loading}
             />
           </div>
@@ -166,7 +183,8 @@ export default function SubscribersPage() {
 
   const filteredSubscribers = subscribers.filter(subscriber => 
     subscriber.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    subscriber.displayName?.toLowerCase().includes(searchTerm.toLowerCase())
+    subscriber.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    subscriber.paypalEmail?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAdd = async (data: Partial<User>) => {
@@ -285,7 +303,7 @@ export default function SubscribersPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Поиск по email или имени..."
+              placeholder="Поиск по email, имени или PayPal..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-black/40 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
@@ -313,6 +331,7 @@ export default function SubscribersPage() {
                   <tr className="bg-black/20">
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Email</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Имя</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">PayPal Email</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">План</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Статус</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Токены</th>
@@ -324,6 +343,7 @@ export default function SubscribersPage() {
                     <tr key={subscriber.id} className="hover:bg-black/20">
                       <td className="px-4 py-3 text-sm">{subscriber.email}</td>
                       <td className="px-4 py-3 text-sm">{subscriber.displayName}</td>
+                      <td className="px-4 py-3 text-sm">{subscriber.paypalEmail || '-'}</td>
                       <td className="px-4 py-3 text-sm">{subscriber.subscription.plan}</td>
                       <td className="px-4 py-3 text-sm">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${

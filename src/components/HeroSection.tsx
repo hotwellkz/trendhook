@@ -2,8 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { BetaButton } from './BetaButton';
+import { useNavigate } from 'react-router-dom';
 
 export function HeroSection() {
+  const navigate = useNavigate();
+
   return (
     <section className="max-w-6xl mx-auto px-4 py-12 md:py-16 lg:py-20 text-center">
       <motion.div
@@ -51,7 +54,13 @@ export function HeroSection() {
         </div>
 
         <div className="text-xs md:text-sm text-gray-400 mt-8">
-          Уже используют TrendVideo? <a href="https://app.trendvideo.online" className="text-[#AAFF00] hover:underline">Войти</a>
+          Уже используют TrendVideo?{' '}
+          <button 
+            onClick={() => navigate('/login')}
+            className="text-[#AAFF00] hover:underline"
+          >
+            Войти
+          </button>
         </div>
       </motion.div>
     </section>

@@ -10,10 +10,13 @@ export interface User {
 export interface UserSubscription {
   plan: SubscriptionPlan;
   tokensLeft: number;
+  status: SubscriptionStatus;
+  trialEndsAt: Date;
   expiresAt: Date;
   lastUpdated: Date | null;
 }
 
+export type SubscriptionStatus = 'trial' | 'active' | 'expired' | 'cancelled';
 export type SubscriptionPlan = 'free' | 'content-creator' | 'business' | 'agency';
 
 export interface VideoContent {

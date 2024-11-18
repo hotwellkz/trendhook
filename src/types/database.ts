@@ -11,7 +11,7 @@ export interface UserSubscription {
   plan: SubscriptionPlan;
   tokensLeft: number;
   expiresAt: Date;
-  lastUpdated?: Date;
+  lastUpdated: Date | null;
 }
 
 export type SubscriptionPlan = 'free' | 'content-creator' | 'business' | 'agency';

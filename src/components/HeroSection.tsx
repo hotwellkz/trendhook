@@ -24,7 +24,7 @@ export function HeroSection() {
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 px-2">
           Миллионы вирусных видео
           <br className="hidden md:block" />
-          <span className="text-[#AAFF00]">у вас в кармане</span>
+          <span className="text-[#AAFF00]"> у вас в кармане</span>
         </h1>
         
         <p className="text-gray-400 text-base md:text-lg lg:text-xl mb-6 md:mb-8 max-w-2xl mx-auto px-2">
@@ -54,7 +54,7 @@ export function HeroSection() {
         </div>
 
         <div className="text-xs md:text-sm text-gray-400 mt-8">
-          Уже используют TrendVideo?{' '}
+          Уже используете TrendVideo?{' '}
           <button 
             onClick={() => navigate('/login')}
             className="text-[#AAFF00] hover:underline"

@@ -1,15 +1,14 @@
 import React from 'react';
-import { useAuth } from '../hooks/useAuth';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { Activity, LogOut, User, Settings, BarChart2, PlusCircle } from 'lucide-react';
+import { Activity, LogOut, User, Settings, BarChart2, PlusCircle, AlertCircle } from 'lucide-react';
 import { auth } from '../config/firebase';
 import { ScriptGenerator } from './ScriptGenerator';
 import { EnvCheck } from './EnvCheck';
 
 export function Dashboard() {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const [showGenerator, setShowGenerator] = React.useState(false);
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -34,6 +33,12 @@ export function Dashboard() {
   const handleUpgrade = () => {
     navigate('/billing');
   };
+
+  const isTrialExpired = user.subscription.status === 'expired';
+  const isInTrial = user.subscription.status === 'trial';
+  const trialDaysLeft = isInTrial ? 
+    Math.max(0, Math.ceil((user.subscription.trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 
+    0;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -67,8 +72,32 @@ export function Dashboard() {
           </h1>
           <p className="text-gray-400">
             Ваш план: <span className="text-[#AAFF00]">{user.subscription?.plan || 'Бесплатный'}</span>
+            {isInTrial && (
+              <span className="ml-2 text-yellow-400">
+                (Пробный период: осталось {trialDaysLeft} дней)
+              </span>
+            )}
           </p>
         </div>
+
+        {isTrialExpired && (
+          <div className="mb-8 bg-red-500/10 text-red-500 p-4 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-6 h-6 flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="font-semibold mb-1">Пробный период истек</h3>
+              <p className="text-sm">
+                Ваш пробный период закончился. Для продолжения использования сервиса, пожалуйста, 
+                выберите подходящий тарифный план.
+              </p>
+              <button
+                onClick={handleUpgrade}
+                className="mt-3 bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors"
+              >
+                Выбрать план
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-gray-800/30 rounded-xl p-6">
@@ -121,7 +150,8 @@ export function Dashboard() {
         <div className="mb-8">
           <button
             onClick={() => setShowGenerator(!showGenerator)}
-            className="flex items-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors"
+            disabled={isTrialExpired}
+            className="flex items-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <PlusCircle className="w-5 h-5" />
             <span>Создать новый сценарий</span>

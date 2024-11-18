@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { Activity, LogOut, User, Settings, BarChart2, PlusCircle } from 'lucide-react';
 import { auth } from '../config/firebase';
 import { ScriptGenerator } from './ScriptGenerator';
+import { EnvCheck } from './EnvCheck'; // Добавляем импорт
 
 export function Dashboard() {
   const { user, loading } = useAuth();
@@ -31,7 +32,6 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Навигация */}
       <nav className="border-b border-gray-800 bg-black/95 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
@@ -53,9 +53,10 @@ export function Dashboard() {
         </div>
       </nav>
 
-      {/* Основной контент */}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Приветствие и статистика */}
+        {/* Добавляем компонент проверки переменных окружения */}
+        <EnvCheck />
+
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
             Добро пожаловать, {user.displayName || 'Пользователь'}!
@@ -65,7 +66,6 @@ export function Dashboard() {
           </p>
         </div>
 
-        {/* Карточки с информацией */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-gray-800/30 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-4">
@@ -111,7 +111,6 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Кнопка создания сценария */}
         <div className="mb-8">
           <button
             onClick={() => setShowGenerator(!showGenerator)}
@@ -122,10 +121,8 @@ export function Dashboard() {
           </button>
         </div>
 
-        {/* Генератор сценариев */}
         {showGenerator && <ScriptGenerator />}
 
-        {/* Последняя активность */}
         {!showGenerator && (
           <div className="bg-gray-800/30 rounded-xl p-6">
             <h2 className="text-xl font-semibold mb-4">Последняя активность</h2>

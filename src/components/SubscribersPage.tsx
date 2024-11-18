@@ -1,8 +1,121 @@
-{/* Обновляем только измененные части, остальной код остается прежним */}
+import React, { useState } from 'react';
+import { Activity, ArrowLeft, Search, Plus, Download, Edit2, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { doc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../config/firebase';
+import type { User } from '../types/database';
 
-// В начале файла код остается тем же...
+interface SubscriberModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: Partial<User>) => Promise<void>;
+  initialData?: User;
+  title: string;
+}
 
-return (
+function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: SubscriberModalProps) {
+  const [email, setEmail] = useState(initialData?.email || '');
+  const [displayName, setDisplayName] = useState(initialData?.displayName || '');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await onSubmit({ email, displayName });
+      onClose();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-gray-900 rounded-2xl w-full max-w-lg">
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-6">{title}</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
+                required
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Имя
+              </label>
+              <input
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="flex justify-end gap-4 mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                disabled={loading}
+              >
+                Отмена
+              </button>
+              <button
+                type="submit"
+                className="bg-[#AAFF00] text-black px-4 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
+              >
+                {loading ? 'Сохранение...' : 'Сохранить'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function SubscribersPage() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [subscribers, setSubscribers] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingSubscriber, setEditingSubscriber] = useState<User | null>(null);
+
+  const filteredSubscribers = subscribers.filter(subscriber => 
+    subscriber.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    subscriber.displayName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleAdd = async (data: Partial<User>) => {
+    // Логика добавления подписчика
+  };
+
+  const handleEdit = async (data: Partial<User>) => {
+    // Логика редактирования подписчика
+  };
+
+  const handleDelete = async (id: string) => {
+    // Логика удаления подписчика
+  };
+
+  return (
     <div className="min-h-screen bg-black">
       <nav className="border-b border-gray-800 bg-black/95 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4">
@@ -116,7 +229,6 @@ return (
         </div>
       </div>
 
-      {/* Модальные окна остаются без изменений */}
       <SubscriberModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}

@@ -8,7 +8,7 @@ import {
   updateDoc
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import type { User, UserSubscription, SubscriptionPlan } from '../types/database';
+import type { User, UserSubscription, SubscriptionPlan, SubscriptionStatus } from '../types/database';
 
 interface CreateUserData {
   email: string;
@@ -51,7 +51,7 @@ export const createUser = async (userId: string, userData: CreateUserData): Prom
         ...subscription,
         trialEndsAt: Timestamp.fromDate(subscription.trialEndsAt),
         expiresAt: Timestamp.fromDate(subscription.expiresAt),
-        lastUpdated: Timestamp.fromDate(subscription.lastUpdated)
+        lastUpdated: subscription.lastUpdated ? Timestamp.fromDate(subscription.lastUpdated) : null
       }
     });
     

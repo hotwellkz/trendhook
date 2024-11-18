@@ -63,17 +63,27 @@ const faqItems: FAQItem[] = [
 export function PartnersPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [referralCode, setReferralCode] = useState('');
+  const [referralLink, setReferralLink] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const generateReferralCode = () => {
-    const code = `ref_${Math.random().toString(36).substring(2, 8)}`;
-    setReferralCode(code);
+  const generateReferralLink = () => {
+    if (!user?.id) return;
+
+    // Создаем уникальный код на основе ID пользователя и временной метки
+    const timestamp = Date.now().toString(36);
+    const uniqueId = user.id.slice(-6);
+    const referralCode = `${uniqueId}_${timestamp}`;
+
+    // Создаем полный URL с реферальным кодом
+    const baseUrl = window.location.origin;
+    const fullReferralLink = `${baseUrl}/signup?ref=${referralCode}`;
+    
+    setReferralLink(fullReferralLink);
   };
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(referralCode);
+      await navigator.clipboard.writeText(referralLink);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -133,22 +143,23 @@ export function PartnersPage() {
         </div>
 
         <div className="bg-gray-800/30 rounded-xl p-6 mb-8">
-          <h2 className="text-xl font-bold mb-4">Ваш партнерский URL</h2>
+          <h2 className="text-xl font-bold mb-4">Ваша партнерская ссылка</h2>
           <div className="flex flex-col md:flex-row gap-4">
             <input
               type="text"
-              value={referralCode}
-              onChange={(e) => setReferralCode(e.target.value)}
-              placeholder="Введите ваш реферальный код"
+              value={referralLink}
+              readOnly
+              placeholder="Нажмите 'Сгенерировать ссылку' для получения вашей уникальной ссылки"
               className="flex-1 bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
             />
             <button
-              onClick={generateReferralCode}
-              className="bg-[#AAFF00] text-black px-6 py-3 rounded-lg font-medium hover:bg-[#88CC00] transition-colors"
+              onClick={generateReferralLink}
+              disabled={!user}
+              className="bg-[#AAFF00] text-black px-6 py-3 rounded-lg font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Сгенерировать URL
+              Сгенерировать ссылку
             </button>
-            {referralCode && (
+            {referralLink && (
               <button
                 onClick={copyToClipboard}
                 className="bg-gray-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-600 transition-colors flex items-center gap-2"
@@ -167,6 +178,11 @@ export function PartnersPage() {
               </button>
             )}
           </div>
+          {!user && (
+            <p className="text-sm text-red-400 mt-2">
+              Необходимо войти в систему для генерации партнерской ссылки
+            </p>
+          )}
         </div>
 
         <div className="bg-gray-800/30 rounded-xl p-6 mb-8">

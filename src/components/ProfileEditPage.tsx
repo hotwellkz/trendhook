@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Activity, ArrowLeft, AlertCircle, Loader2, X, ChevronRight } from 'lucide-react';
+import { Activity, ArrowLeft, AlertCircle, Loader2, X, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { stripeService } from '../services/stripe';
+import { updatePassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 interface PlanOption {
   title: string;
@@ -45,6 +47,17 @@ export function ProfileEditPage() {
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
 
+  // Состояния для смены пароля
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -72,6 +85,48 @@ export function ProfileEditPage() {
       setError('Произошла ошибка при обновлении профиля');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess(false);
+    setPasswordLoading(true);
+
+    try {
+      if (!auth.currentUser) {
+        throw new Error('Пользователь не авторизован');
+      }
+
+      if (newPassword !== confirmPassword) {
+        throw new Error('Новые пароли не совпадают');
+      }
+
+      if (newPassword.length < 6) {
+        throw new Error('Новый пароль должен содержать минимум 6 символов');
+      }
+
+      // Обновляем пароль
+      await updatePassword(auth.currentUser, newPassword);
+
+      setPasswordSuccess(true);
+      setNewPassword('');
+      setCurrentPassword('');
+      setConfirmPassword('');
+
+      setTimeout(() => {
+        setPasswordSuccess(false);
+      }, 3000);
+    } catch (err) {
+      console.error('Error changing password:', err);
+      setPasswordError(
+        err instanceof Error 
+          ? err.message 
+          : 'Произошла ошибка при смене пароля'
+      );
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -116,7 +171,7 @@ export function ProfileEditPage() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-8">Редактировать профиль</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 mb-8">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Имя пользователя
@@ -200,6 +255,111 @@ export function ProfileEditPage() {
             )}
           </button>
         </form>
+
+        {/* Форма смены пароля */}
+        <div className="bg-gray-800/30 rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-6">Сменить пароль</h2>
+          <form onSubmit={handlePasswordChange} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Текущий пароль
+              </label>
+              <div className="relative">
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50 pr-10"
+                  required
+                  disabled={passwordLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                >
+                  {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Новый пароль
+              </label>
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50 pr-10"
+                  required
+                  disabled={passwordLoading}
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                >
+                  {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Подтвердите новый пароль
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50 pr-10"
+                  required
+                  disabled={passwordLoading}
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {passwordError && (
+              <div className="bg-red-500/10 text-red-500 p-4 rounded-lg flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                <span>{passwordError}</span>
+              </div>
+            )}
+
+            {passwordSuccess && (
+              <div className="bg-green-500/10 text-green-500 p-4 rounded-lg">
+                Пароль успешно изменен!
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full bg-gray-700 text-white py-3 rounded-lg font-medium hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              disabled={passwordLoading}
+            >
+              {passwordLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Изменение пароля...</span>
+                </>
+              ) : (
+                'Изменить пароль'
+              )}
+            </button>
+          </form>
+        </div>
 
         {/* План подписки - Модальное окно */}
         {showPlanModal && (

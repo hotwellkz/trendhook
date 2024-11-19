@@ -41,9 +41,17 @@ export function Dashboard() {
 
   const isTrialExpired = user.subscription.status === 'expired';
   const isInTrial = user.subscription.status === 'trial';
-  const trialDaysLeft = isInTrial && user.subscription.trialEndsAt ? 
-    Math.max(0, Math.ceil((user.subscription.trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 
-    0;
+  
+  // Расчет оставшихся дней подписки
+  const getSubscriptionDaysLeft = () => {
+    const now = new Date();
+    const expiresAt = new Date(user.subscription.expiresAt);
+    const diff = expiresAt.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return Math.max(0, days);
+  };
+
+  const subscriptionDaysLeft = getSubscriptionDaysLeft();
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
@@ -79,23 +87,29 @@ export function Dashboard() {
           <h1 className="text-2xl md:text-3xl font-bold mb-2">
             Добро пожаловать, {user.displayName || 'Пользователь'}!
           </h1>
-          <p className="text-gray-400">
-            Ваш план: <span className="text-[#AAFF00]">{user.subscription.plan || 'Бесплатный'}</span>
-            {isInTrial && (
-              <span className="ml-2 text-yellow-400">
-                (Пробный период: осталось {trialDaysLeft} дней)
-              </span>
-            )}
-          </p>
+          <div className="text-gray-400">
+            <p>
+              Ваш план: <span className="text-[#AAFF00]">{user.subscription.plan || 'Бесплатный'}</span>
+              {isInTrial ? (
+                <span className="ml-2 text-yellow-400">
+                  (Пробный период: осталось {subscriptionDaysLeft} дней)
+                </span>
+              ) : !isTrialExpired && (
+                <span className="ml-2 text-[#AAFF00]">
+                  (Осталось {subscriptionDaysLeft} дней)
+                </span>
+              )}
+            </p>
+          </div>
         </div>
 
         {isTrialExpired && (
           <div className="mb-8 bg-red-500/10 text-red-500 p-4 rounded-xl flex items-start gap-3">
             <AlertCircle className="w-6 h-6 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="font-semibold mb-1">Пробный период истек</h3>
+              <h3 className="font-semibold mb-1">Подписка истекла</h3>
               <p className="text-sm">
-                Ваш пробный период закончился. Для продолжения использования сервиса, пожалуйста, 
+                Ваша подписка закончилась. Для продолжения использования сервиса, пожалуйста, 
                 выберите подходящий тарифный план.
               </p>
               <button

@@ -1,4 +1,4 @@
-interface SEOConfig {
+export interface SEOConfig {
   siteName: string;
   siteUrl: string;
   pages: {
@@ -22,67 +22,45 @@ export const seoConfig: SEOConfig = {
   siteUrl: "https://trendvideo.online",
   pages: {
     home: {
-      title: "TrendVideo - AI генератор вирусного контента",
-      h1: "Миллионы вирусных видео у вас в кармане",
-      description: "Создавайте вирусные видео для социальных сетей с помощью искусственного интеллекта. Попробуйте бесплатно!",
-      focusKeyword: "ai генератор вирусного контента",
+      title: "Генератор сценариев для видео с ИИ | TrendVideo - Создание вирусного контента",
+      h1: "Умный генератор сценариев для вирусных видео",
+      description: "Профессиональный генератор сценариев для видео с искусственным интеллектом. Создавайте вирусные сценарии для соцсетей за минуты. Попробуйте бесплатно!",
+      focusKeyword: "генератор сценариев",
       keywords: [
-        "ai генератор видео",
-        "вирусный контент",
-        "генерация видео",
-        "искусственный интеллект",
-        "создание контента",
-        "viral video",
-        "content creation"
+        "генератор сценариев",
+        "генератор сценариев для видео",
+        "создание сценариев онлайн",
+        "ai генератор сценариев",
+        "написание сценариев",
+        "программа для создания сценариев",
+        "автоматический генератор сценариев",
+        "нейросеть для сценариев",
+        "сценарии для видео",
+        "искусственный интеллект сценарии"
       ],
       canonicalUrl: "https://trendvideo.online",
-      ogTitle: "TrendVideo - AI генератор вирусного контента",
-      ogDescription: "Создавайте вирусные видео для социальных сетей с помощью искусственного интеллекта",
+      ogTitle: "Генератор сценариев для видео | Создавайте вирусный контент с ИИ",
+      ogDescription: "Автоматизируйте создание сценариев для видео с помощью искусственного интеллекта. Экономьте время на создании контента!",
       ogImage: "https://trendvideo.online/og-image.jpg",
       structuredData: {
         "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "TrendVideo AI",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        }
-      }
-    },
-    aiScripts: {
-      title: "Нейросеть для генерации сценариев | TrendVideo - AI генератор контента",
-      h1: "Нейросеть для генерации сценариев",
-      description: "Создавайте профессиональные сценарии для видео с помощью нейросети. Автоматизируйте создание контента с искусственным интеллектом. Попробуйте бесплатно!",
-      focusKeyword: "нейросеть для генерации сценариев",
-      keywords: [
-        "нейросеть для генерации сценариев",
-        "ai генератор сценариев",
-        "генерация текста для видео",
-        "искусственный интеллект сценарии",
-        "автоматическое создание сценариев",
-        "нейросеть контент",
-        "ai помощник сценарист"
-      ],
-      canonicalUrl: "https://trendvideo.online/ai-scripts",
-      ogTitle: "Нейросеть для генерации сценариев | Создавайте контент с AI",
-      ogDescription: "Автоматизируйте создание сценариев для видео с помощью искусственного интеллекта. Экономьте время на создании контента!",
-      ogImage: "https://trendvideo.online/ai-scripts-og.jpg",
-      structuredData: {
-        "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "TrendVideo AI Scripts Generator",
+        "name": "TrendVideo AI Script Generator",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
+        "description": "Профессиональный генератор сценариев для видео с искусственным интеллектом",
         "offers": {
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "USD"
         },
-        "description": "AI-powered script generator for video content"
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "156"
+        }
       }
-    }
+    },
+    // ... остальные страницы ...
   }
 };

@@ -2,7 +2,6 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// Проверяем наличие всех необходимых переменных окружения
 const requiredEnvVars = [
   'VITE_FIREBASE_API_KEY',
   'VITE_FIREBASE_AUTH_DOMAIN',
@@ -13,7 +12,6 @@ const requiredEnvVars = [
   'VITE_FIREBASE_CLIENT_ID'
 ] as const;
 
-// Проверяем, что все переменные окружения установлены
 for (const envVar of requiredEnvVars) {
   if (!import.meta.env[envVar]) {
     console.error(`Missing required environment variable: ${envVar}`);
@@ -46,21 +44,29 @@ googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
 // Устанавливаем параметры для Google Sign In
 googleProvider.setCustomParameters({
   prompt: 'select_account',
-  client_id: import.meta.env.VITE_FIREBASE_CLIENT_ID
+  client_id: import.meta.env.VITE_FIREBASE_CLIENT_ID,
+  redirect_uri: window.location.hostname === 'localhost' 
+    ? 'http://localhost:5173/__/auth/handler'
+    : 'https://trendvideo.online/__/auth/handler'
 });
 
 // Экспортируем функцию для Google входа
 export const signInWithGoogle = async () => {
   try {
+    console.log('Starting Google Sign In...');
+    console.log('Current domain:', window.location.hostname);
+    console.log('Auth domain:', auth.app.options.authDomain);
+    console.log('Redirect URI:', googleProvider.customParameters?.redirect_uri);
+    
     const result = await signInWithPopup(auth, googleProvider);
+    console.log('Sign in successful:', result);
     return result;
   } catch (error: any) {
     console.error('Google Sign In Error:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
     
-    // Добавляем информацию об ошибке
     if (error.code === 'auth/unauthorized-domain') {
-      console.error('Current domain:', window.location.hostname);
-      console.error('Auth domain:', auth.app.options.authDomain);
       error.message = `Domain ${window.location.hostname} is not authorized. Please add it to Firebase Console -> Authentication -> Settings -> Authorized domains`;
     }
     

@@ -37,7 +37,59 @@ export function ScriptGenerator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // ... rest of the state management and handlers remain the same ...
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!user) {
+      setError('Необходимо войти в систему');
+      return;
+    }
+
+    if (user.subscription.tokensLeft <= 0) {
+      setError('Недостаточно токенов. Пожалуйста, обновите план.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Генерируем сценарий
+      const generatedScript = await aiService.generateScript({
+        topic,
+        duration: parseInt(duration),
+        style,
+        targetAudience,
+        objective
+      });
+
+      // Анализируем потенциал
+      const scriptAnalysis = await aiService.analyzeViralPotential(generatedScript);
+
+      // Обновляем токены пользователя
+      const userRef = doc(db, 'users', user.id);
+      await updateDoc(userRef, {
+        'subscription.tokensLeft': user.subscription.tokensLeft - 1
+      });
+
+      // Обновляем статистику
+      await incrementScriptCount(user.id);
+
+      setScript(generatedScript);
+      setAnalysis(scriptAnalysis);
+    } catch (err) {
+      console.error('Error generating script:', err);
+      setError('Произошла ошибка при генерации сценария');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNewIdea = () => {
+    setScript('');
+    setAnalysis('');
+    setError('');
+  };
 
   return (
     <div className="w-full bg-gray-800/30 rounded-xl p-4 md:p-6 lg:p-8 mb-8 md:mb-16 lg:mb-32">

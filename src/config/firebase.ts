@@ -19,16 +19,42 @@ const auth = getAuth(app);
 
 // Настраиваем Google Provider
 const googleProvider = new GoogleAuthProvider();
+
+// Добавляем необходимые scopes
+googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
+googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
+
+// Настраиваем параметры
 googleProvider.setCustomParameters({
-  prompt: 'select_account'
+  prompt: 'select_account',
+  access_type: 'offline',
+  include_granted_scopes: true
 });
 
 // Экспортируем функцию для Google входа
 export const signInWithGoogle = async () => {
   try {
-    return await signInWithPopup(auth, googleProvider);
-  } catch (error) {
+    // Сначала проверяем, что мы находимся в правильном домене
+    const currentDomain = window.location.hostname;
+    if (!auth.app.options.authDomain) {
+      throw new Error('Auth domain not configured');
+    }
+
+    // Пытаемся выполнить вход
+    const result = await signInWithPopup(auth, googleProvider);
+    
+    // Возвращаем результат только если успешно
+    if (result.user) {
+      return result;
+    }
+    throw new Error('No user data received');
+  } catch (error: any) {
     console.error('Error in signInWithGoogle:', error);
+    // Добавляем больше контекста к ошибке
+    if (error.code === 'auth/unauthorized-domain') {
+      console.error('Current domain:', window.location.hostname);
+      console.error('Authorized domains:', auth.app.options.authDomain);
+    }
     throw error;
   }
 };

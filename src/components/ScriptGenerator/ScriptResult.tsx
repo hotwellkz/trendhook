@@ -12,7 +12,48 @@ export function ScriptResult({ script, analysis, onNewIdea }: ScriptResultProps)
   const [isEditing, setIsEditing] = useState(false);
   const [editedScript, setEditedScript] = useState(script);
 
-  // ... handlers remain the same ...
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(editedScript || script);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: 'Сценарий видео',
+        text: editedScript || script
+      });
+    } catch (err) {
+      console.error('Failed to share:', err);
+      // Fallback to copy
+      handleCopy();
+    }
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([editedScript || script], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'script.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleEdit = () => {
+    if (isEditing) {
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
+    }
+  };
 
   return (
     <div className="mt-4 md:mt-6 lg:mt-8 space-y-4 md:space-y-6">

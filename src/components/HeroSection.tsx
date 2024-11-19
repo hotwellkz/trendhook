@@ -1,11 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check } from 'lucide-react';
-import { BetaButton } from './BetaButton';
+import { Check, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
+import { createUser } from '../services/firestore';
 
 export function HeroSection() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      navigate('/signup');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Generate a random password for the user
+      const tempPassword = Math.random().toString(36).slice(-12);
+      
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
+      
+      // Create user record in Firestore
+      await createUser(userCredential.user.uid, {
+        email: userCredential.user.email!,
+        displayName: null,
+        photoURL: null
+      });
+
+      // Redirect to dashboard
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Registration error:', err);
+      if (err instanceof Error) {
+        if (err.message.includes('email-already-in-use')) {
+          setError('Этот email уже зарегистрирован. Пожалуйста, войдите в систему.');
+        } else {
+          setError('Произошла ошибка при регистрации. Пожалуйста, попробуйте позже.');
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-12 md:py-16 lg:py-20 text-center">
@@ -34,17 +80,37 @@ export function HeroSection() {
           Используйте вирусные видео для исследования, генерации идей и создания сценариев за СЕКУНДЫ
         </p>
 
-        <div className="max-w-sm md:max-w-md mx-auto px-4">
+        <form onSubmit={handleSubmit} className="max-w-sm md:max-w-md mx-auto px-4">
           <div className="bg-gray-800/30 p-2 rounded-lg flex flex-col md:flex-row gap-2 mb-4">
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="example@gmail.com"
               className="flex-1 bg-transparent px-4 py-2.5 outline-none rounded-lg text-sm md:text-base w-full"
             />
-            <BetaButton className="px-4 py-2.5 rounded-lg text-sm md:text-base whitespace-nowrap">
-              Присоединиться
-            </BetaButton>
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-[#AAFF00] text-black px-4 py-2.5 rounded-lg text-sm md:text-base whitespace-nowrap flex items-center justify-center gap-2 hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Подождите...</span>
+                </>
+              ) : (
+                'Присоединиться'
+              )}
+            </button>
           </div>
+
+          {error && (
+            <div className="text-red-500 text-sm flex items-center gap-2 justify-center mt-2">
+              <AlertCircle className="w-4 h-4" />
+              <span>{error}</span>
+            </div>
+          )}
           
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 text-xs md:text-sm text-gray-400">
             <div className="flex items-center gap-2">
@@ -56,7 +122,7 @@ export function HeroSection() {
               <span>7 дней бесплатно</span>
             </div>
           </div>
-        </div>
+        </form>
 
         <div className="text-xs md:text-sm text-gray-400 mt-8">
           Уже используете TrendVideo?{' '}

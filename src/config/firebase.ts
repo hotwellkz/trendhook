@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithRedirect } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -16,16 +16,19 @@ const app = initializeApp(firebaseConfig);
 
 // Инициализируем Auth
 const auth = getAuth(app);
-auth.useDeviceLanguage(); // Используем язык устройства
 
-// Настраиваем Google Provider глобально
+// Настраиваем Google Provider
 const googleProvider = new GoogleAuthProvider();
-googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
-googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
-googleProvider.setCustomParameters({
-  prompt: 'select_account'
-});
 
-// Экспортируем сервисы и провайдер
+// Экспортируем функцию для Google входа
+export const signInWithGoogle = async () => {
+  try {
+    await signInWithRedirect(auth, googleProvider);
+  } catch (error) {
+    console.error('Error in signInWithGoogle:', error);
+    throw error;
+  }
+};
+
 export const db = getFirestore(app);
-export { auth, googleProvider };
+export { auth };

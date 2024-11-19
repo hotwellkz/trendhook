@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { PlusCircle, Copy, Share2, Download, Check, Edit2, Save, Clock } from 'lucide-react';
 
 interface ScriptResultProps {
@@ -36,7 +36,7 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
     };
 
     calculateTimeLeft();
-    const interval = setInterval(calculateTimeLeft, 60000); // Update every minute
+    const interval = setInterval(calculateTimeLeft, 60000);
 
     return () => clearInterval(interval);
   }, [scriptId]);
@@ -65,7 +65,11 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
   };
 
   const handleDownload = () => {
-    const blob = new Blob([editedScript || script], { type: 'text/plain' });
+    const content = editedScript || script;
+    // Create blob with UTF-8 encoding and BOM
+    const blob = new Blob(['\ufeff', content], { 
+      type: 'text/plain;charset=utf-8' 
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

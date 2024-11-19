@@ -24,6 +24,7 @@ import SubscribersPage from './components/SubscribersPage';
 import { ProfileEditPage } from './components/ProfileEditPage';
 import { PartnersPage } from './components/PartnersPage';
 import { ChatWidget } from './components/ChatWidget';
+import { useAuth } from './hooks/useAuth';
 
 function HomePage() {
   return (
@@ -47,6 +48,8 @@ function HomePage() {
 }
 
 function App() {
+  const { user } = useAuth();
+
   return (
     <Router>
       <div className="min-h-screen bg-black text-white">
@@ -63,7 +66,7 @@ function App() {
           <Route path="/profile/edit" element={<ProfileEditPage />} />
           <Route path="/partners" element={<PartnersPage />} />
         </Routes>
-        <ChatWidget />
+        {user && <ChatWidget />}
       </div>
     </Router>
   );

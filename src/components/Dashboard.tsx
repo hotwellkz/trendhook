@@ -6,6 +6,14 @@ import { ScriptGenerator } from './ScriptGenerator';
 import { SavedScripts } from './Dashboard/SavedScripts';
 import { useAuth } from '../hooks/useAuth';
 
+// План переводов
+const PLAN_TRANSLATIONS: Record<string, string> = {
+  'free': 'Бесплатный',
+  'content-creator': 'Контент-мейкер',
+  'business': 'Бизнес',
+  'agency': 'Агентство'
+};
+
 export function Dashboard() {
   const { user, loading } = useAuth();
   const [showGenerator, setShowGenerator] = useState(false);
@@ -90,7 +98,7 @@ export function Dashboard() {
           </h1>
           <div className="text-gray-400">
             <p>
-              Ваш план: <span className="text-[#AAFF00]">{user.subscription.plan || 'Бесплатный'}</span>
+              Ваш план: <span className="text-[#AAFF00]">{PLAN_TRANSLATIONS[user.subscription.plan] || 'Бесплатный'}</span>
               {isInTrial ? (
                 <span className="ml-2 text-yellow-400">
                   (Пробный период: осталось {subscriptionDaysLeft} дней)

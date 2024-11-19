@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, AlertCircle, Home, Eye, EyeOff } from 'lucide-react';
-import { auth } from '../config/firebase';
+import { auth, signInWithGoogle } from '../config/firebase';
 import { 
-  createUserWithEmailAndPassword, 
-  GoogleAuthProvider, 
-  signInWithPopup,
+  createUserWithEmailAndPassword,
   onAuthStateChanged
 } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -48,11 +46,10 @@ export function SignUpPage() {
     setError('');
     
     try {
-      const provider = new GoogleAuthProvider();
-      provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
-      provider.addScope('https://www.googleapis.com/auth/userinfo.email');
+      console.log('Starting Google Sign In...');
+      const result = await signInWithGoogle();
+      console.log('Google Sign In result:', result);
       
-      const result = await signInWithPopup(auth, provider);
       if (result.user) {
         navigate('/dashboard');
       }
@@ -74,8 +71,12 @@ export function SignUpPage() {
         return 'Регистрация временно недоступна';
       case 'auth/weak-password':
         return 'Пароль должен содержать минимум 6 символов';
+      case 'auth/popup-blocked':
+        return 'Браузер заблокировал всплывающее окно. Пожалуйста, разрешите всплывающие окна для этого сайта.';
+      case 'auth/popup-closed-by-user':
+        return 'Окно авторизации было закрыто. Пожалуйста, попробуйте снова.';
       case 'auth/unauthorized-domain':
-        return 'Этот домен не авторизован для входа через Google';
+        return `Домен ${window.location.hostname} не авторизован для входа через Google. Пожалуйста, добавьте его в Firebase Console.`;
       default:
         return 'Произошла ошибка при регистрации. Пожалуйста, попробуйте позже.';
     }

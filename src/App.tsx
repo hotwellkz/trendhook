@@ -16,6 +16,7 @@ import { TermsConditions } from './components/TermsConditions';
 import { SiteStructure } from './components/SiteStructure';
 import { AIScriptsPage } from './components/AIScriptsPage';
 import SubscribersPage from './components/SubscribersPage';
+import { ScrollToTop } from './components/ScrollToTop';
 
 function App() {
   const { user } = useAuth();
@@ -23,6 +24,7 @@ function App() {
   return (
     <HelmetProvider>
       <Router>
+        <ScrollToTop />
         <div className="min-h-screen bg-black text-white">
           <Routes>
             <Route path="/" element={<HomePage />} />

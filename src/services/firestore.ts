@@ -3,9 +3,9 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc,
   Timestamp,
   DocumentData,
+  updateDoc,
   increment,
   FieldValue,
   DocumentReference
@@ -21,6 +21,15 @@ interface CreateUserData {
 
 const TRIAL_PERIOD_DAYS = 7;
 const INITIAL_TOKENS = 10;
+const SUBSCRIPTION_PERIOD_DAYS = 30;
+
+// Token limits for different plans
+const PLAN_TOKENS = {
+  'free': 0,
+  'content-creator': 60,
+  'business': 250,
+  'agency': Number.MAX_SAFE_INTEGER // Unlimited tokens
+};
 
 export const createUser = async (userId: string, userData: CreateUserData): Promise<User> => {
   try {
@@ -162,11 +171,15 @@ export const checkSubscriptionStatus = async (userId: string): Promise<boolean> 
 export const updateUserPlan = async (userId: string, plan: SubscriptionPlan): Promise<void> => {
   try {
     const userRef = doc(db, 'users', userId);
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + SUBSCRIPTION_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+
     await updateDoc(userRef, {
       'subscription.plan': plan,
       'subscription.status': plan === 'free' ? 'expired' : 'active',
-      'subscription.expiresAt': new Date(Date.now() + (plan === 'free' ? 0 : 30 * 24 * 60 * 60 * 1000)),
-      'subscription.lastUpdated': new Date()
+      'subscription.tokensLeft': PLAN_TOKENS[plan],
+      'subscription.expiresAt': expiresAt,
+      'subscription.lastUpdated': now
     });
   } catch (error) {
     console.error('Error updating user plan:', error);

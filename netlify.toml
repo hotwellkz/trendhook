@@ -11,3 +11,12 @@
   to = "/index.html"
   status = 200
   force = true
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/api/telegram-webhook"
+  to = "/.netlify/functions/telegram-webhook"
+  status = 200
+  force = true

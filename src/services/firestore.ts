@@ -1,4 +1,3 @@
-// ... existing imports ...
 import { 
   collection,
   doc,
@@ -18,8 +17,167 @@ import {
 import { db } from '../config/firebase';
 import type { User, UserSubscription, SubscriptionPlan, SubscriptionStatus } from '../types/database';
 
-// ... existing code ...
+// Constants for subscription plans
+const SUBSCRIPTION_DURATIONS = {
+  'content-creator': {
+    days: 30,
+    tokens: 60
+  },
+  'business': {
+    days: 30,
+    tokens: 250
+  },
+  'agency': {
+    days: 30,
+    tokens: 999999 // Unlimited tokens
+  },
+  'free': {
+    days: 0,
+    tokens: 0
+  }
+};
 
+export const updateUserPlan = async (userId: string, plan: SubscriptionPlan): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const planConfig = SUBSCRIPTION_DURATIONS[plan];
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + planConfig.days * 24 * 60 * 60 * 1000);
+
+    await updateDoc(userRef, {
+      'subscription.plan': plan,
+      'subscription.status': plan === 'free' ? 'expired' : 'active',
+      'subscription.tokensLeft': planConfig.tokens,
+      'subscription.expiresAt': expiresAt,
+      'subscription.lastUpdated': now
+    });
+  } catch (error) {
+    console.error('Error updating user plan:', error);
+    throw new Error('Failed to update user plan');
+  }
+};
+
+export const getUser = async (userId: string): Promise<User | null> => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    
+    if (!userSnap.exists()) {
+      return null;
+    }
+
+    const data = userSnap.data();
+    const user = {
+      ...data,
+      id: userId,
+      createdAt: data.createdAt.toDate(),
+      subscription: {
+        plan: data.subscription?.plan || 'free',
+        tokensLeft: data.subscription?.tokensLeft || 0,
+        status: data.subscription?.status || 'trial',
+        trialEndsAt: data.subscription?.trialEndsAt?.toDate() || new Date(),
+        expiresAt: data.subscription?.expiresAt?.toDate() || new Date(),
+        lastUpdated: data.subscription?.lastUpdated?.toDate() || null
+      },
+      stats: {
+        scriptsGenerated: data.stats?.scriptsGenerated || 0,
+        videosAnalyzed: data.stats?.videosAnalyzed || 0,
+        lastScriptDate: data.stats?.lastScriptDate?.toDate() || undefined
+      }
+    } as User;
+
+    // Check if trial or subscription has expired
+    const now = new Date();
+    if (user.subscription.status === 'trial' && now > user.subscription.trialEndsAt) {
+      await updateDoc(userRef, {
+        'subscription.status': 'expired',
+        'subscription.tokensLeft': 0,
+        'subscription.lastUpdated': Timestamp.fromDate(now)
+      });
+
+      user.subscription.status = 'expired';
+      user.subscription.tokensLeft = 0;
+      user.subscription.lastUpdated = now;
+    } else if (user.subscription.status === 'active' && now > user.subscription.expiresAt) {
+      await updateDoc(userRef, {
+        'subscription.status': 'expired',
+        'subscription.tokensLeft': 0,
+        'subscription.lastUpdated': Timestamp.fromDate(now)
+      });
+
+      user.subscription.status = 'expired';
+      user.subscription.tokensLeft = 0;
+      user.subscription.lastUpdated = now;
+    }
+
+    return user;
+  } catch (error) {
+    console.error('Error getting user:', error);
+    throw new Error('Failed to get user data');
+  }
+};
+
+export const createUser = async (userId: string, userData: CreateUserData): Promise<User> => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    
+    const now = new Date();
+    const trialEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    const subscription: UserSubscription = {
+      plan: 'free',
+      tokensLeft: 10,
+      status: 'trial',
+      trialEndsAt,
+      expiresAt: trialEndsAt,
+      lastUpdated: now
+    };
+
+    const data: User = {
+      id: userId,
+      email: userData.email,
+      displayName: userData.displayName,
+      photoURL: userData.photoURL,
+      createdAt: now,
+      subscription,
+      stats: {
+        scriptsGenerated: 0,
+        videosAnalyzed: 0
+      }
+    };
+    
+    await setDoc(userRef, {
+      ...data,
+      createdAt: Timestamp.fromDate(data.createdAt),
+      subscription: {
+        ...subscription,
+        trialEndsAt: Timestamp.fromDate(subscription.trialEndsAt),
+        expiresAt: Timestamp.fromDate(subscription.expiresAt),
+        lastUpdated: subscription.lastUpdated ? Timestamp.fromDate(subscription.lastUpdated) : null
+      }
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw new Error('Failed to create user');
+  }
+};
+
+export const incrementScriptCount = async (userId: string): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      'stats.scriptsGenerated': increment(1),
+      'stats.lastScriptDate': Timestamp.fromDate(new Date())
+    });
+  } catch (error) {
+    console.error('Error incrementing script count:', error);
+    throw new Error('Failed to update statistics');
+  }
+};
+
+// Script storage functionality
 export interface Script {
   id: string;
   userId: string;
@@ -42,8 +200,8 @@ export const saveScript = async (userId: string, content: string, analysis?: str
       userId,
       content,
       analysis,
-      createdAt: now,
-      expiresAt
+      createdAt: Timestamp.fromDate(now),
+      expiresAt: Timestamp.fromDate(expiresAt)
     });
 
     return scriptDoc.id;
@@ -84,5 +242,3 @@ export const deleteExpiredScripts = async (): Promise<void> => {
     throw new Error('Failed to delete expired scripts');
   }
 };
-
-// ... rest of existing code ...

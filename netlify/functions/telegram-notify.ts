@@ -11,10 +11,16 @@ export const handler: Handler = async (event) => {
   try {
     const { chatId, message, userEmail } = JSON.parse(event.body!);
 
-    // Отправляем уведомление в Telegram
-    const text = `Новое сообщение от ${userEmail}\nЧат ID: ${chatId}\n\nСообщение: ${message}`;
+    // Форматируем сообщение для администратора
+    const text = `📩 Новое сообщение\n\n` +
+                `👤 От: ${userEmail}\n` +
+                `💬 Сообщение: ${message}\n\n` +
+                `Чтобы ответить, используйте:\n` +
+                `/reply ${chatId} ваш ответ`;
     
-    await bot.sendMessage(process.env.TELEGRAM_CHAT_ID!, text);
+    await bot.sendMessage(process.env.TELEGRAM_CHAT_ID!, text, {
+      parse_mode: 'HTML'
+    });
 
     return {
       statusCode: 200,

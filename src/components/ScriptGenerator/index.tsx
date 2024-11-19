@@ -9,6 +9,7 @@ import { FormSelect } from './FormSelect';
 import { ErrorMessage } from './ErrorMessage';
 import { GenerateButton } from './GenerateButton';
 import { ScriptResult } from './ScriptResult';
+import { SavedScripts } from './SavedScripts';
 import { Coins, AlertCircle } from 'lucide-react';
 
 const STYLE_OPTIONS = [
@@ -38,7 +39,7 @@ export function ScriptGenerator() {
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [scriptId, setScriptId] = useState<string | undefined>();
+  const [scriptId, setScriptId] = useState<string>();
 
   const getAudienceLimit = () => {
     if (user?.subscription?.status === 'trial') {
@@ -128,6 +129,20 @@ export function ScriptGenerator() {
       // Save the script
       const savedScriptId = await saveScript(user.id, combinedScript, combinedAnalysis);
       setScriptId(savedScriptId);
+
+      // Save to local storage
+      const savedScripts = JSON.parse(localStorage.getItem('savedScripts') || '[]');
+      savedScripts.push({
+        id: savedScriptId,
+        script: combinedScript,
+        analysis: combinedAnalysis,
+        createdAt: new Date().toISOString(),
+        topic,
+        style,
+        objective
+      });
+      localStorage.setItem('savedScripts', JSON.stringify(savedScripts));
+
     } catch (err) {
       console.error('Error generating script:', err);
       setError('Произошла ошибка при генерации сценария');
@@ -141,7 +156,6 @@ export function ScriptGenerator() {
     setAnalysis('');
     setError('');
     setTargetAudiences([]);
-    setScriptId(undefined);
   };
 
   return (
@@ -156,124 +170,125 @@ export function ScriptGenerator() {
         </div>
       </div>
 
-      {!script && (
-        <form onSubmit={handleGenerate} className="space-y-4 md:space-y-6">
-          <FormInput
-            label="Тема видео"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="Например: '5 способов улучшить продуктивность'"
-            required
-            disabled={loading}
-          />
+      {!script ? (
+        <>
+          <SavedScripts />
+          <form onSubmit={handleGenerate} className="space-y-4 md:space-y-6">
+            <FormInput
+              label="Тема видео"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="Например: '5 способов улучшить продуктивность'"
+              required
+              disabled={loading}
+            />
 
-          <FormInput
-            label="Длительность (в секундах)"
-            type="number"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            min="15"
-            max="180"
-            required
-            disabled={loading}
-          />
+            <FormInput
+              label="Длительность (в секундах)"
+              type="number"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              min="15"
+              max="180"
+              required
+              disabled={loading}
+            />
 
-          <FormSelect
-            label="Стиль"
-            value={style}
-            onChange={setStyle}
-            options={STYLE_OPTIONS}
-            placeholder="Выберите стиль видео"
-            required
-            disabled={loading}
-            allowCustom
-          />
+            <FormSelect
+              label="Стиль"
+              value={style}
+              onChange={setStyle}
+              options={STYLE_OPTIONS}
+              placeholder="Выберите стиль видео"
+              required
+              disabled={loading}
+              allowCustom
+            />
 
-          <div className="space-y-2 bg-black/20 p-3 md:p-4 rounded-xl">
-            <label className="block text-white text-sm md:text-base font-medium">
-              Целевые аудитории ({targetAudiences.length}/{audienceLimit})
-              {user?.subscription?.status === 'trial' && (
-                <span className="text-[#AAFF00] ml-2 text-sm">
-                  Пробный период: доступны все аудитории
-                </span>
-              )}
-            </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {targetAudiences.map((audience, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-800/50 px-3 py-1.5 rounded-lg flex items-center gap-2"
-                >
-                  <span className="text-sm">{audience}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveAudience(index)}
-                    className="text-gray-400 hover:text-white"
+            <div className="space-y-2 bg-black/20 p-3 md:p-4 rounded-xl">
+              <label className="block text-white text-sm md:text-base font-medium">
+                Целевые аудитории ({targetAudiences.length}/{audienceLimit})
+                {user?.subscription?.status === 'trial' && (
+                  <span className="text-[#AAFF00] ml-2 text-sm">
+                    Пробный период: доступны все аудитории
+                  </span>
+                )}
+              </label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {targetAudiences.map((audience, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-800/50 px-3 py-1.5 rounded-lg flex items-center gap-2"
                   >
-                    <AlertCircle className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Например: 'Предприниматели 25-45 лет'"
-                className="flex-1 bg-black/40 rounded-lg px-3 md:px-4 py-2.5 text-sm md:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const input = e.target as HTMLInputElement;
+                    <span className="text-sm">{audience}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAudience(index)}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <AlertCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Например: 'Предприниматели 25-45 лет'"
+                  className="flex-1 bg-black/40 rounded-lg px-3 md:px-4 py-2.5 text-sm md:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const input = e.target as HTMLInputElement;
+                      if (input.value.trim()) {
+                        handleAddAudience(input.value.trim());
+                        input.value = '';
+                      }
+                    }
+                  }}
+                  disabled={targetAudiences.length >= audienceLimit || loading}
+                />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
                     if (input.value.trim()) {
                       handleAddAudience(input.value.trim());
                       input.value = '';
                     }
-                  }
-                }}
-                disabled={targetAudiences.length >= audienceLimit || loading}
-              />
-              <button
-                type="button"
-                onClick={(e) => {
-                  const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                  if (input.value.trim()) {
-                    handleAddAudience(input.value.trim());
-                    input.value = '';
-                  }
-                }}
-                className="bg-[#AAFF00] text-black px-4 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={targetAudiences.length >= audienceLimit || loading}
-              >
-                Добавить
-              </button>
+                  }}
+                  className="bg-[#AAFF00] text-black px-4 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={targetAudiences.length >= audienceLimit || loading}
+                >
+                  Добавить
+                </button>
+              </div>
+              {targetAudiences.length >= audienceLimit && (
+                <p className="text-yellow-500 text-sm mt-2">
+                  {user?.subscription?.status === 'trial'
+                    ? 'Достигнут лимит целевых аудиторий для пробного периода'
+                    : 'Достигнут лимит целевых аудиторий для вашего плана'}
+                </p>
+              )}
             </div>
-            {targetAudiences.length >= audienceLimit && (
-              <p className="text-yellow-500 text-sm mt-2">
-                {user?.subscription?.status === 'trial'
-                  ? 'Достигнут лимит целевых аудиторий для пробного периода'
-                  : 'Достигнут лимит целевых аудиторий для вашего плана'}
-              </p>
-            )}
-          </div>
 
-          <FormSelect
-            label="Цель видео"
-            value={objective}
-            onChange={setObjective}
-            options={OBJECTIVE_OPTIONS}
-            placeholder="Выберите цель видео"
-            required
-            disabled={loading}
-            allowCustom
-          />
+            <FormSelect
+              label="Цель видео"
+              value={objective}
+              onChange={setObjective}
+              options={OBJECTIVE_OPTIONS}
+              placeholder="Выберите цель видео"
+              required
+              disabled={loading}
+              allowCustom
+            />
 
-          {error && <ErrorMessage message={error} />}
+            {error && <ErrorMessage message={error} />}
 
-          <GenerateButton loading={loading} />
-        </form>
-      )}
-
-      {script && (
+            <GenerateButton loading={loading} />
+          </form>
+        </>
+      ) : (
         <ScriptResult 
           script={script} 
           analysis={analysis} 

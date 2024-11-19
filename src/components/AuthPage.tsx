@@ -49,6 +49,10 @@ export function AuthPage() {
       }
     } catch (err: any) {
       console.error('Google sign in error:', err);
+      // Добавляем больше информации об ошибке
+      if (err.code === 'auth/unauthorized-domain') {
+        console.error('Current domain:', window.location.hostname);
+      }
       setError(getErrorMessage(err.code));
     } finally {
       setIsLoading(false);
@@ -74,7 +78,7 @@ export function AuthPage() {
       case 'auth/operation-not-allowed':
         return 'Этот метод входа временно недоступен. Пожалуйста, используйте другой способ.';
       case 'auth/unauthorized-domain':
-        return 'Этот домен не авторизован для входа через Google. Пожалуйста, используйте другой способ входа.';
+        return `Домен не авторизован для входа через Google. Текущий домен: ${window.location.hostname}. Пожалуйста, используйте другой способ входа или свяжитесь с администратором.`;
       default:
         return 'Произошла ошибка при входе. Пожалуйста, попробуйте позже или используйте другой способ входа.';
     }

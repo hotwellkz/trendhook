@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PlusCircle, Copy, Share2, Download, Check, Edit2, Save, Clock } from 'lucide-react';
 
 interface ScriptResultProps {
@@ -13,6 +13,8 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
   const [isEditing, setIsEditing] = useState(false);
   const [editedScript, setEditedScript] = useState(script);
   const [timeLeft, setTimeLeft] = useState<string>('');
+  const [textareaHeight, setTextareaHeight] = useState<string>('auto');
+  const scriptDivRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -40,6 +42,13 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
 
     return () => clearInterval(interval);
   }, [scriptId]);
+
+  // Сохраняем высоту div перед переключением в режим редактирования
+  useEffect(() => {
+    if (isEditing && scriptDivRef.current) {
+      setTextareaHeight(`${scriptDivRef.current.offsetHeight}px`);
+    }
+  }, [isEditing]);
 
   const handleCopy = async () => {
     try {
@@ -81,11 +90,7 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
   };
 
   const handleEdit = () => {
-    if (isEditing) {
-      setIsEditing(false);
-    } else {
-      setIsEditing(true);
-    }
+    setIsEditing(!isEditing);
   };
 
   return (
@@ -169,11 +174,14 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
           <textarea
             value={editedScript}
             onChange={(e) => setEditedScript(e.target.value)}
-            className="w-full min-h-[200px] md:min-h-[300px] lg:min-h-[400px] bg-black/40 rounded-lg p-4 text-white resize-y focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 text-sm md:text-base"
-            style={{ height: 'auto' }}
+            className="w-full bg-black/40 rounded-lg p-4 text-white resize-y focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 text-sm md:text-base"
+            style={{ height: textareaHeight }}
           />
         ) : (
-          <div className="bg-black/40 rounded-lg p-4 whitespace-pre-wrap text-sm md:text-base">
+          <div 
+            ref={scriptDivRef}
+            className="bg-black/40 rounded-lg p-4 whitespace-pre-wrap text-sm md:text-base"
+          >
             {editedScript || script}
           </div>
         )}

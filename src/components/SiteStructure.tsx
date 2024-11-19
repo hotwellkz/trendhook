@@ -11,7 +11,7 @@ interface PageInfo {
 }
 
 // Централизованный список всех страниц сайта
-export const sitePages: PageInfo[] = [
+const sitePages: PageInfo[] = [
   // Основные страницы
   {
     path: '/',
@@ -29,6 +29,12 @@ export const sitePages: PageInfo[] = [
     path: '/partners',
     title: 'Партнерская программа',
     description: 'Зарабатывайте с нами',
+    category: 'main'
+  },
+  {
+    path: '/ai-scripts',
+    title: 'Нейросеть для генерации сценариев',
+    description: 'Автоматическое создание сценариев с помощью AI',
     category: 'main'
   },
 
@@ -179,17 +185,4 @@ export function SiteStructure() {
   );
 }
 
-// ... остальной код остается прежним ...
-
-export const sitePages: PageInfo[] = [
-  // ... остальные страницы ...
-  
-  {
-    path: '/ai-scripts',
-    title: 'Нейросеть для генерации сценариев',
-    description: 'Автоматическое создание сценариев с помощью AI',
-    category: 'main'
-  },
-  
-  // ... остальные страницы ...
-];
+export { sitePages };

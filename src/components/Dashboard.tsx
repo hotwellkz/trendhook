@@ -40,9 +40,28 @@ export function Dashboard() {
 
   const isTrialExpired = user?.subscription?.status === 'expired';
   const isInTrial = user?.subscription?.status === 'trial';
-  const trialDaysLeft = isInTrial && user?.subscription?.trialEndsAt ? 
-    Math.max(0, Math.ceil((user.subscription.trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 
-    0;
+  const isActive = user?.subscription?.status === 'active';
+
+  // Calculate remaining days
+  const getRemainingDays = () => {
+    if (!user?.subscription) return 0;
+
+    const now = new Date();
+    let endDate;
+
+    if (isInTrial) {
+      endDate = user.subscription.trialEndsAt;
+    } else if (isActive) {
+      endDate = user.subscription.expiresAt;
+    } else {
+      return 0;
+    }
+
+    const remainingDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(0, remainingDays);
+  };
+
+  const remainingDays = getRemainingDays();
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
@@ -80,9 +99,9 @@ export function Dashboard() {
           </h1>
           <p className="text-gray-400">
             Ваш план: <span className="text-[#AAFF00]">{user.subscription?.plan || 'Бесплатный'}</span>
-            {isInTrial && (
+            {(isInTrial || isActive) && remainingDays > 0 && (
               <span className="ml-2 text-yellow-400">
-                (Пробный период: осталось {trialDaysLeft} дней)
+                (осталось {remainingDays} {remainingDays === 1 ? 'день' : remainingDays < 5 ? 'дня' : 'дней'})
               </span>
             )}
           </p>
@@ -92,9 +111,9 @@ export function Dashboard() {
           <div className="mb-8 bg-red-500/10 text-red-500 p-4 rounded-xl flex items-start gap-3">
             <AlertCircle className="w-6 h-6 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="font-semibold mb-1">Пробный период истек</h3>
+              <h3 className="font-semibold mb-1">Период подписки истек</h3>
               <p className="text-sm">
-                Ваш пробный период закончился. Для продолжения использования сервиса, пожалуйста, 
+                Ваш период подписки закончился. Для продолжения использования сервиса, пожалуйста, 
                 выберите подходящий тарифный план.
               </p>
               <button

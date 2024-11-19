@@ -11,6 +11,8 @@ import {
   serverTimestamp, 
   updateDoc,
   increment,
+  where,
+  getDocs,
   Timestamp 
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
@@ -34,26 +36,36 @@ export function ChatWidget() {
   useEffect(() => {
     if (!user) return undefined;
 
-    // Создаем или получаем существующий чат
     const initChat = async () => {
       try {
-        // Проверяем существующие чаты пользователя
+        // Ищем существующий чат пользователя
         const chatsRef = collection(db, 'chats');
-        const chatDoc = await addDoc(chatsRef, {
-          userId: user.id,
-          userEmail: user.email,
-          createdAt: serverTimestamp(),
-          lastMessage: null,
-          unreadCount: 0
-        });
+        const q = query(chatsRef, where('userId', '==', user.id));
+        const querySnapshot = await getDocs(q);
         
-        setChatId(chatDoc.id);
+        let existingChatId: string | null = null;
+        
+        if (!querySnapshot.empty) {
+          existingChatId = querySnapshot.docs[0].id;
+        } else {
+          // Создаем новый чат если не нашли существующий
+          const newChatRef = await addDoc(chatsRef, {
+            userId: user.id,
+            userEmail: user.email,
+            createdAt: serverTimestamp(),
+            lastMessage: null,
+            unreadCount: 0
+          });
+          existingChatId = newChatRef.id;
+        }
+        
+        setChatId(existingChatId);
 
         // Подписываемся на сообщения
-        const messagesRef = collection(db, 'chats', chatDoc.id, 'messages');
-        const q = query(messagesRef, orderBy('timestamp', 'asc'));
+        const messagesRef = collection(db, 'chats', existingChatId, 'messages');
+        const messagesQuery = query(messagesRef, orderBy('timestamp', 'asc'));
         
-        return onSnapshot(q, (snapshot) => {
+        return onSnapshot(messagesQuery, (snapshot) => {
           const newMessages = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),

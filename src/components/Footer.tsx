@@ -15,7 +15,8 @@ export function Footer() {
     { name: 'Политика cookies', href: '/cookies' },
     { name: 'Условия использования', href: '/terms' },
     { name: 'Подписчики', href: '/subscribers' },
-    { name: 'Партнерская программа', href: '/partners' }
+    { name: 'Партнерская программа', href: '/partners' },
+    { name: 'Структура сайта', href: '/site-structure' }
   ];
 
   return (

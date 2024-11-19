@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, AlertCircle, Home, Eye, EyeOff } from 'lucide-react';
-import { auth } from '../config/firebase';
-import { signInWithGoogle } from '../config/firebase';
-import { 
-  signInWithEmailAndPassword, 
-  onAuthStateChanged,
-  getRedirectResult
-} from 'firebase/auth';
+import { auth, signInWithGoogle } from '../config/firebase';
+import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 export function AuthPage() {
@@ -18,25 +13,8 @@ export function AuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkRedirectResult = async () => {
-      try {
-        console.log('Checking redirect result...');
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          console.log('Redirect success:', result.user);
-          navigate('/dashboard');
-        }
-      } catch (error) {
-        console.error('Redirect error:', error);
-        setError(getErrorMessage((error as any).code));
-      }
-    };
-
-    checkRedirectResult();
-
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log('User is signed in:', user);
         navigate('/dashboard');
       }
     });
@@ -65,18 +43,19 @@ export function AuthPage() {
     setError('');
     
     try {
-      console.log('Starting Google sign in...');
-      await signInWithGoogle();
-      // Редирект произойдет автоматически
+      const result = await signInWithGoogle();
+      if (result.user) {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       console.error('Google sign in error:', err);
       setError(getErrorMessage(err.code));
+    } finally {
       setIsLoading(false);
     }
   };
 
   const getErrorMessage = (errorCode: string) => {
-    console.log('Error code:', errorCode);
     switch (errorCode) {
       case 'auth/invalid-email':
         return 'Неверный формат email';
@@ -95,7 +74,7 @@ export function AuthPage() {
       case 'auth/operation-not-allowed':
         return 'Этот метод входа временно недоступен. Пожалуйста, используйте другой способ.';
       case 'auth/unauthorized-domain':
-        return 'Этот домен не авторизован для входа через Google. Пожалуйста, проверьте настройки Firebase.';
+        return 'Этот домен не авторизован для входа через Google. Пожалуйста, используйте другой способ входа.';
       default:
         return 'Произошла ошибка при входе. Пожалуйста, попробуйте позже или используйте другой способ входа.';
     }

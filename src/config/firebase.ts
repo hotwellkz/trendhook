@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithRedirect } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -17,10 +17,8 @@ const app = initializeApp(firebaseConfig);
 // Инициализируем Auth
 const auth = getAuth(app);
 
-// Настраиваем Google Provider с дополнительными скопами
+// Настраиваем Google Provider
 const googleProvider = new GoogleAuthProvider();
-googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
-googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
 googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
@@ -28,7 +26,7 @@ googleProvider.setCustomParameters({
 // Экспортируем функцию для Google входа
 export const signInWithGoogle = async () => {
   try {
-    await signInWithRedirect(auth, googleProvider);
+    return await signInWithPopup(auth, googleProvider);
   } catch (error) {
     console.error('Error in signInWithGoogle:', error);
     throw error;

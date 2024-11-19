@@ -9,7 +9,7 @@ import { FormSelect } from './FormSelect';
 import { ErrorMessage } from './ErrorMessage';
 import { GenerateButton } from './GenerateButton';
 import { ScriptResult } from './ScriptResult';
-import { Coins } from 'lucide-react';
+import { Coins, AlertCircle } from 'lucide-react';
 
 const STYLE_OPTIONS = [
   'Обучающий',
@@ -25,17 +25,58 @@ const OBJECTIVE_OPTIONS = [
   'Обучение'
 ];
 
+const MAX_TRIAL_AUDIENCES = 20; // Максимальное количество аудиторий в пробном периоде
+
 export function ScriptGenerator() {
   const { user } = useAuth();
   const [topic, setTopic] = useState('');
   const [duration, setDuration] = useState('60');
   const [style, setStyle] = useState('');
-  const [targetAudience, setTargetAudience] = useState('');
+  const [targetAudiences, setTargetAudiences] = useState<string[]>([]);
   const [objective, setObjective] = useState('');
   const [script, setScript] = useState('');
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Определяем лимит аудиторий на основе плана подписки
+  const getAudienceLimit = () => {
+    // Если пользователь в пробном периоде, даем полный доступ
+    if (user?.subscription?.status === 'trial') {
+      return MAX_TRIAL_AUDIENCES;
+    }
+
+    // Иначе определяем лимит по плану
+    switch (user?.subscription?.plan) {
+      case 'content-creator':
+        return 1;
+      case 'business':
+        return 4;
+      case 'agency':
+        return 20;
+      default:
+        return 1;
+    }
+  };
+
+  const audienceLimit = getAudienceLimit();
+
+  const handleAddAudience = (audience: string) => {
+    if (targetAudiences.length >= audienceLimit) {
+      const message = user?.subscription?.status === 'trial' 
+        ? `В пробном периоде доступно до ${MAX_TRIAL_AUDIENCES} целевых аудиторий`
+        : `Ваш план позволяет использовать только ${audienceLimit} целевых аудиторий`;
+      setError(message);
+      return;
+    }
+    if (!targetAudiences.includes(audience)) {
+      setTargetAudiences([...targetAudiences, audience]);
+    }
+  };
+
+  const handleRemoveAudience = (index: number) => {
+    setTargetAudiences(targetAudiences.filter((_, i) => i !== index));
+  };
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,33 +91,43 @@ export function ScriptGenerator() {
       return;
     }
 
+    if (targetAudiences.length === 0) {
+      setError('Добавьте хотя бы одну целевую аудиторию');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      // Генерируем сценарий
-      const generatedScript = await aiService.generateScript({
-        topic,
-        duration: parseInt(duration),
-        style,
-        targetAudience,
-        objective
-      });
+      // Генерируем сценарий для каждой аудитории
+      const scripts = await Promise.all(targetAudiences.map(audience => 
+        aiService.generateScript({
+          topic,
+          duration: parseInt(duration),
+          style,
+          targetAudience: audience,
+          objective
+        })
+      ));
 
-      // Анализируем потенциал
-      const scriptAnalysis = await aiService.analyzeViralPotential(generatedScript);
+      // Анализируем потенциал для каждого сценария
+      const analyses = await Promise.all(scripts.map(script => 
+        aiService.analyzeViralPotential(script)
+      ));
 
-      // Обновляем токены пользователя
+      // Обновляем токены пользователя (списываем по токену за каждую аудиторию)
       const userRef = doc(db, 'users', user.id);
       await updateDoc(userRef, {
-        'subscription.tokensLeft': user.subscription.tokensLeft - 1
+        'subscription.tokensLeft': user.subscription.tokensLeft - targetAudiences.length
       });
 
       // Обновляем статистику
       await incrementScriptCount(user.id);
 
-      setScript(generatedScript);
-      setAnalysis(scriptAnalysis);
+      // Объединяем все сценарии и анализы
+      setScript(scripts.join('\n\n=== Следующая аудитория ===\n\n'));
+      setAnalysis(analyses.join('\n\n=== Следующий анализ ===\n\n'));
     } catch (err) {
       console.error('Error generating script:', err);
       setError('Произошла ошибка при генерации сценария');
@@ -89,6 +140,7 @@ export function ScriptGenerator() {
     setScript('');
     setAnalysis('');
     setError('');
+    setTargetAudiences([]);
   };
 
   return (
@@ -136,14 +188,72 @@ export function ScriptGenerator() {
             allowCustom
           />
 
-          <FormInput
-            label="Целевая аудитория"
-            value={targetAudience}
-            onChange={(e) => setTargetAudience(e.target.value)}
-            placeholder="Например: 'Предприниматели 25-45 лет'"
-            required
-            disabled={loading}
-          />
+          <div className="space-y-2 bg-black/20 p-3 md:p-4 rounded-xl">
+            <label className="block text-white text-sm md:text-base font-medium">
+              Целевые аудитории ({targetAudiences.length}/{audienceLimit})
+              {user?.subscription?.status === 'trial' && (
+                <span className="text-[#AAFF00] ml-2 text-sm">
+                  Пробный период: доступны все аудитории
+                </span>
+              )}
+            </label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {targetAudiences.map((audience, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-800/50 px-3 py-1.5 rounded-lg flex items-center gap-2"
+                >
+                  <span className="text-sm">{audience}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAudience(index)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <AlertCircle className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Например: 'Предприниматели 25-45 лет'"
+                className="flex-1 bg-black/40 rounded-lg px-3 md:px-4 py-2.5 text-sm md:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const input = e.target as HTMLInputElement;
+                    if (input.value.trim()) {
+                      handleAddAudience(input.value.trim());
+                      input.value = '';
+                    }
+                  }
+                }}
+                disabled={targetAudiences.length >= audienceLimit || loading}
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                  if (input.value.trim()) {
+                    handleAddAudience(input.value.trim());
+                    input.value = '';
+                  }
+                }}
+                className="bg-[#AAFF00] text-black px-4 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={targetAudiences.length >= audienceLimit || loading}
+              >
+                Добавить
+              </button>
+            </div>
+            {targetAudiences.length >= audienceLimit && (
+              <p className="text-yellow-500 text-sm mt-2">
+                {user?.subscription?.status === 'trial'
+                  ? 'Достигнут лимит целевых аудиторий для пробного периода'
+                  : 'Достигнут лимит целевых аудиторий для вашего плана'}
+              </p>
+            )}
+          </div>
 
           <FormSelect
             label="Цель видео"

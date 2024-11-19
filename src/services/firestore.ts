@@ -115,21 +115,6 @@ export const getUser = async (userId: string): Promise<User | null> => {
       }
     } as User;
 
-    // Проверяем истек ли пробный период
-    const now = new Date();
-    if (user.subscription.status === 'trial' && now > user.subscription.trialEndsAt) {
-      // Обновляем статус подписки
-      await updateDoc(userRef, {
-        'subscription.status': 'expired',
-        'subscription.tokensLeft': 0,
-        'subscription.lastUpdated': Timestamp.fromDate(now)
-      });
-
-      user.subscription.status = 'expired';
-      user.subscription.tokensLeft = 0;
-      user.subscription.lastUpdated = now;
-    }
-
     return user;
   } catch (error) {
     console.error('Error getting user:', error);

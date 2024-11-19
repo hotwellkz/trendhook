@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -14,6 +14,18 @@ const firebaseConfig = {
 // Инициализируем Firebase
 const app = initializeApp(firebaseConfig);
 
-// Экспортируем сервисы
-export const auth = getAuth(app);
+// Инициализируем Auth
+const auth = getAuth(app);
+auth.useDeviceLanguage(); // Используем язык устройства
+
+// Настраиваем Google Provider глобально
+const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
+googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
+
+// Экспортируем сервисы и провайдер
 export const db = getFirestore(app);
+export { auth, googleProvider };

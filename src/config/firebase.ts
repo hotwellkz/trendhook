@@ -15,6 +15,7 @@ const requiredEnvVars = [
 // Проверяем, что все переменные окружения установлены
 for (const envVar of requiredEnvVars) {
   if (!import.meta.env[envVar]) {
+    console.error(`Missing required environment variable: ${envVar}`);
     throw new Error(`Missing required environment variable: ${envVar}`);
   }
 }
@@ -34,24 +35,36 @@ const app = initializeApp(firebaseConfig);
 // Инициализируем Auth
 const auth = getAuth(app);
 
-// Настраиваем Google Provider
+// Настраиваем Google Provider с расширенными разрешениями
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
 googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
-// Экспортируем функцию для Google входа
+// Экспортируем функцию для Google входа с обработкой ошибок
 export const signInWithGoogle = async () => {
   try {
+    // Логируем текущий домен для отладки
+    console.log('Current domain:', window.location.hostname);
+    console.log('Auth domain:', auth.app.options.authDomain);
+    
     const result = await signInWithPopup(auth, googleProvider);
     return result;
   } catch (error: any) {
     console.error('Google Sign In Error:', error);
     
-    // Добавляем дополнительную информацию об ошибке
+    // Добавляем подробную информацию об ошибке
     if (error.code === 'auth/unauthorized-domain') {
-      console.error('Current domain:', window.location.hostname);
-      console.error('Authorized domain:', auth.app.options.authDomain);
+      console.error('Domain not authorized. Please add it to Firebase Console -> Authentication -> Settings -> Authorized domains');
       error.message = `Domain ${window.location.hostname} is not authorized. Please add it to Firebase Console -> Authentication -> Settings -> Authorized domains`;
+    } else if (error.code === 'auth/popup-blocked') {
+      error.message = 'Popup was blocked by the browser. Please allow popups for this site.';
+    } else if (error.code === 'auth/popup-closed-by-user') {
+      error.message = 'Authentication popup was closed. Please try again.';
+    } else if (error.code === 'auth/cancelled-popup-request') {
+      error.message = 'Another authentication popup is already open.';
     }
     
     throw error;

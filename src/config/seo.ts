@@ -22,7 +22,7 @@ export const seoConfig: SEOConfig = {
   siteUrl: "https://trendvideo.online",
   pages: {
     home: {
-      title: "TrendVideo | AI Генератор Вирусных Видео для Социальных Сетей",
+      title: "TrendVideo | AI Генератор Вирусных Сценариев к Видео для Социальных Сетей",
       h1: "Создавайте Вирусные Видео с Помощью ИИ",
       description: "TrendVideo - умный AI генератор контента для создания вирусных видео. Автоматизируйте создание контента для TikTok, Instagram Reels и YouTube Shorts. Попробуйте бесплатно!",
       focusKeyword: "генератор вирусных видео",

@@ -26,7 +26,7 @@ const OBJECTIVE_OPTIONS = [
 ];
 
 export function ScriptGenerator() {
-  const { user } = useAuth();
+  const { user, updateUserData } = useAuth();
   const [topic, setTopic] = useState('');
   const [duration, setDuration] = useState('60');
   const [style, setStyle] = useState('');
@@ -74,6 +74,9 @@ export function ScriptGenerator() {
       await updateDoc(userRef, {
         'subscription.tokensLeft': user.subscription.tokensLeft - 1
       });
+
+      // Обновляем данные пользователя для отображения актуального количества токенов
+      await updateUserData(user.id);
 
       await incrementScriptCount(user.id);
 

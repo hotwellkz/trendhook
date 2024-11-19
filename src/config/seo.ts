@@ -1,11 +1,57 @@
-// ... остальной код остается прежним ...
+interface SEOConfig {
+  siteName: string;
+  siteUrl: string;
+  pages: {
+    [key: string]: {
+      title: string;
+      h1: string;
+      description: string;
+      focusKeyword: string;
+      keywords: string[];
+      canonicalUrl: string;
+      ogTitle: string;
+      ogDescription: string;
+      ogImage?: string;
+      structuredData?: object;
+    };
+  };
+}
 
 export const seoConfig: SEOConfig = {
   siteName: "TrendVideo",
   siteUrl: "https://trendvideo.online",
   pages: {
-    // ... остальные страницы ...
-    
+    home: {
+      title: "TrendVideo - AI генератор вирусного контента",
+      h1: "Миллионы вирусных видео у вас в кармане",
+      description: "Создавайте вирусные видео для социальных сетей с помощью искусственного интеллекта. Попробуйте бесплатно!",
+      focusKeyword: "ai генератор вирусного контента",
+      keywords: [
+        "ai генератор видео",
+        "вирусный контент",
+        "генерация видео",
+        "искусственный интеллект",
+        "создание контента",
+        "viral video",
+        "content creation"
+      ],
+      canonicalUrl: "https://trendvideo.online",
+      ogTitle: "TrendVideo - AI генератор вирусного контента",
+      ogDescription: "Создавайте вирусные видео для социальных сетей с помощью искусственного интеллекта",
+      ogImage: "https://trendvideo.online/og-image.jpg",
+      structuredData: {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "TrendVideo AI",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
     aiScripts: {
       title: "Нейросеть для генерации сценариев | TrendVideo - AI генератор контента",
       h1: "Нейросеть для генерации сценариев",

@@ -18,26 +18,16 @@ export function useAuth() {
           
           if (!userData) {
             // Создаем нового пользователя в Firestore
-            const newUser = {
-              id: firebaseUser.uid,
+            const newUser = await createUser(firebaseUser.uid, {
               email: firebaseUser.email!,
-              displayName: firebaseUser.displayName || 'Пользователь',
-              photoURL: firebaseUser.photoURL,
-              createdAt: new Date(),
-              subscription: {
-                plan: 'free',
-                tokensLeft: 10,
-                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 дней пробного периода
-              }
-            };
+              displayName: firebaseUser.displayName,
+              photoURL: firebaseUser.photoURL
+            });
             
-            await createUser(firebaseUser.uid, newUser);
-            userData = await getUser(firebaseUser.uid);
+            userData = newUser;
           }
           
-          if (userData) {
-            setUser(userData);
-          }
+          setUser(userData);
         } else {
           setUser(null);
         }

@@ -2,16 +2,87 @@ import React, { useState, useEffect } from 'react';
 import { Activity, ArrowLeft, Search, Plus, Download, Edit2, Trash2, Loader2, X, ChevronDown, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { doc, deleteDoc, collection, getDocs, updateDoc, addDoc, Timestamp } from 'firebase/firestore';
+import { doc, deleteDoc, collection, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import type { User, SubscriptionPlan } from '../types/database';
+import type { User, Payment, SubscriptionPlan } from '../types/database';
 
-const PLANS: { [key in SubscriptionPlan]: { title: string, tokens: number } } = {
-  'free': { title: 'Бесплатный', tokens: 10 },
-  'content-creator': { title: 'Контент-мейкер', tokens: 60 },
-  'business': { title: 'Бизнес', tokens: 250 },
-  'agency': { title: 'Агентство', tokens: 999999 } // Безлимит
-};
+function PaymentHistory({ payments, totalPaid }: { payments?: Payment[], totalPaid?: number }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (!payments?.length) return null;
+
+  return (
+    <div>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="text-sm text-[#AAFF00] hover:underline flex items-center gap-1"
+      >
+        Всего оплачено: ${totalPaid?.toFixed(2) || '0.00'}
+        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      
+      {isOpen && (
+        <div className="absolute mt-2 bg-black/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-800 p-4 z-20 min-w-[200px]">
+          <h4 className="text-sm font-medium mb-2">История платежей:</h4>
+          <div className="space-y-2 max-h-[200px] overflow-y-auto">
+            {payments.map((payment) => (
+              <div
+                key={payment.id}
+                className={`text-xs ${
+                  payment.status === 'refunded' ? 'text-red-400' : 'text-gray-400'
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <span>{new Date(payment.date).toLocaleDateString()}</span>
+                  <span className={payment.status === 'refunded' ? 'text-red-400' : 'text-[#AAFF00]'}>
+                    {payment.status === 'refunded' ? '-' : ''}${Math.abs(payment.amount).toFixed(2)}
+                  </span>
+                </div>
+                <div className="text-gray-500">{payment.plan}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlanSelector({ currentPlan, onPlanChange }: { currentPlan: SubscriptionPlan, onPlanChange: (plan: SubscriptionPlan) => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const plans: SubscriptionPlan[] = ['free', 'content-creator', 'business', 'agency'];
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1 text-sm hover:text-[#AAFF00] transition-colors"
+      >
+        {currentPlan}
+        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute mt-1 bg-black/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-800 py-1 z-10">
+          {plans.map((plan) => (
+            <button
+              key={plan}
+              onClick={() => {
+                onPlanChange(plan);
+                setIsOpen(false);
+              }}
+              className={`w-full px-4 py-2 text-left text-sm hover:bg-[#AAFF00]/10 transition-colors ${
+                plan === currentPlan ? 'text-[#AAFF00]' : 'text-gray-400'
+              }`}
+            >
+              {plan}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function PasswordProtection({ onSuccess }: { onSuccess: () => void }) {
   const [password, setPassword] = useState('');
@@ -81,226 +152,6 @@ function PasswordProtection({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
-interface PlanSelectorProps {
-  currentPlan: SubscriptionPlan;
-  onPlanChange: (plan: SubscriptionPlan) => void;
-  disabled?: boolean;
-}
-
-function PlanSelector({ currentPlan, onPlanChange, disabled }: PlanSelectorProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        className="w-full bg-black/40 rounded-lg px-3 py-2 text-left text-sm flex items-center justify-between gap-2 disabled:opacity-50"
-        disabled={disabled}
-      >
-        <span className={`${getPlanColor(currentPlan)}`}>
-          {PLANS[currentPlan]?.title || 'Бесплатный'}
-        </span>
-        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-
-      {isOpen && (
-        <div className="absolute z-10 w-full mt-1 bg-black/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-800">
-          {Object.entries(PLANS).map(([plan, { title }]) => (
-            <button
-              key={plan}
-              type="button"
-              onClick={() => {
-                onPlanChange(plan as SubscriptionPlan);
-                setIsOpen(false);
-              }}
-              className={`w-full px-3 py-2 text-left text-sm hover:bg-[#AAFF00]/10 transition-colors ${
-                plan === currentPlan ? 'bg-[#AAFF00]/5 text-[#AAFF00]' : ''
-              }`}
-            >
-              {title}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function getPlanColor(plan: SubscriptionPlan): string {
-  switch (plan) {
-    case 'agency':
-      return 'text-purple-400';
-    case 'business':
-      return 'text-blue-400';
-    case 'content-creator':
-      return 'text-green-400';
-    default:
-      return 'text-gray-400';
-  }
-}
-
-interface SubscriberModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: Partial<User>) => Promise<void>;
-  initialData?: User;
-  title: string;
-}
-
-function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: SubscriberModalProps) {
-  const [email, setEmail] = useState(initialData?.email || '');
-  const [displayName, setDisplayName] = useState(initialData?.displayName || '');
-  const [paypalEmail, setPaypalEmail] = useState(initialData?.paypalEmail || '');
-  const [plan, setPlan] = useState<SubscriptionPlan>(initialData?.subscription?.plan || 'free');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (initialData) {
-      setEmail(initialData.email);
-      setDisplayName(initialData.displayName || '');
-      setPaypalEmail(initialData.paypalEmail || '');
-      setPlan(initialData.subscription?.plan || 'free');
-    }
-  }, [initialData]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const now = new Date();
-      const trialEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-      await onSubmit({
-        email,
-        displayName,
-        paypalEmail,
-        subscription: {
-          plan,
-          tokensLeft: PLANS[plan].tokens,
-          status: 'active',
-          trialEndsAt,
-          expiresAt: trialEndsAt,
-          lastUpdated: now
-        }
-      });
-      onClose();
-    } catch (err) {
-      console.error('Error submitting form:', err);
-      setError('Произошла ошибка при сохранении');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-900 rounded-2xl w-full max-w-lg">
-        <div className="flex justify-between items-center p-6 border-b border-gray-800">
-          <h2 className="text-xl font-bold">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
-              required
-              disabled={loading || !!initialData}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Имя пользователя
-            </label>
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              PayPal Email
-            </label>
-            <input
-              type="email"
-              value={paypalEmail}
-              onChange={(e) => setPaypalEmail(e.target.value)}
-              className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
-              placeholder="Email для выплат PayPal"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Тарифный план
-            </label>
-            <PlanSelector
-              currentPlan={plan}
-              onPlanChange={setPlan}
-              disabled={loading}
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-500/10 text-red-500 p-4 rounded-lg">
-              {error}
-            </div>
-          )}
-
-          <div className="flex justify-end gap-4 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg text-gray-400 hover:text-white transition-colors"
-              disabled={loading}
-            >
-              Отмена
-            </button>
-            <button
-              type="submit"
-              className="bg-[#AAFF00] text-black px-4 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Сохранение...</span>
-                </>
-              ) : (
-                'Сохранить'
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
 export default function SubscribersPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
@@ -337,80 +188,27 @@ export default function SubscribersPage() {
       }
     };
 
-    if (isAuthenticated) {
-      loadSubscribers();
-    }
-  }, [isAuthenticated]);
+    loadSubscribers();
+  }, []);
 
-  const filteredSubscribers = subscribers.filter(subscriber => 
-    subscriber.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    subscriber.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    subscriber.paypalEmail?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleAdd = async (data: Partial<User>) => {
+  const handleQuickPlanChange = async (userId: string, plan: SubscriptionPlan) => {
     try {
-      const usersRef = collection(db, 'users');
-      const now = new Date();
-      const trialEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-      const newUser: Partial<User> = {
-        ...data,
-        createdAt: now,
-        subscription: {
-          plan: data.subscription?.plan || 'free',
-          tokensLeft: PLANS[data.subscription?.plan || 'free'].tokens,
-          status: 'active',
-          trialEndsAt,
-          expiresAt: trialEndsAt,
-          lastUpdated: now
-        }
-      };
-
-      const docRef = await addDoc(usersRef, {
-        ...newUser,
-        createdAt: Timestamp.fromDate(now),
-        subscription: {
-          ...newUser.subscription,
-          trialEndsAt: Timestamp.fromDate(trialEndsAt),
-          expiresAt: Timestamp.fromDate(trialEndsAt),
-          lastUpdated: Timestamp.fromDate(now)
-        }
-      });
-      
-      setSubscribers(prev => [...prev, { id: docRef.id, ...newUser } as User]);
-    } catch (err) {
-      console.error('Error adding subscriber:', err);
-      throw new Error('Ошибка при добавлении подписчика');
-    }
-  };
-
-  const handleEdit = async (data: Partial<User>) => {
-    if (!editingSubscriber?.id) return;
-
-    try {
-      const userRef = doc(db, 'users', editingSubscriber.id);
-      const now = new Date();
-      
+      const userRef = doc(db, 'users', userId);
       await updateDoc(userRef, {
-        ...data,
-        updatedAt: Timestamp.fromDate(now),
-        subscription: {
-          ...data.subscription,
-          lastUpdated: Timestamp.fromDate(now)
-        }
+        'subscription.plan': plan,
+        'subscription.updatedAt': new Date()
       });
-
+      
       setSubscribers(prev => 
         prev.map(sub => 
-          sub.id === editingSubscriber.id 
-            ? { ...sub, ...data }
+          sub.id === userId 
+            ? { ...sub, subscription: { ...sub.subscription, plan } }
             : sub
         )
       );
     } catch (err) {
-      console.error('Error editing subscriber:', err);
-      throw new Error('Ошибка при редактировании подписчика');
+      console.error('Error updating plan:', err);
+      alert('Ошибка при обновлении плана');
     }
   };
 
@@ -428,37 +226,11 @@ export default function SubscribersPage() {
     }
   };
 
-  const handleQuickPlanChange = async (subscriberId: string, newPlan: SubscriptionPlan) => {
-    try {
-      const userRef = doc(db, 'users', subscriberId);
-      const now = new Date();
-      
-      await updateDoc(userRef, {
-        'subscription.plan': newPlan,
-        'subscription.tokensLeft': PLANS[newPlan].tokens,
-        'subscription.lastUpdated': Timestamp.fromDate(now)
-      });
-
-      setSubscribers(prev => 
-        prev.map(sub => 
-          sub.id === subscriberId 
-            ? {
-                ...sub,
-                subscription: {
-                  ...sub.subscription,
-                  plan: newPlan,
-                  tokensLeft: PLANS[newPlan].tokens,
-                  lastUpdated: now
-                }
-              }
-            : sub
-        )
-      );
-    } catch (err) {
-      console.error('Error changing plan:', err);
-      alert('Ошибка при изменении тарифного плана');
-    }
-  };
+  const filteredSubscribers = subscribers.filter(subscriber => 
+    subscriber.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    subscriber.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    subscriber.paypalEmail?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (!isAuthenticated) {
     return <PasswordProtection onSuccess={() => setIsAuthenticated(true)} />;
@@ -548,6 +320,7 @@ export default function SubscribersPage() {
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">План</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Статус</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Токены</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Платежи</th>
                     <th className="px-4 py-3 text-right text-sm font-medium text-gray-400">Действия</th>
                   </tr>
                 </thead>
@@ -575,6 +348,12 @@ export default function SubscribersPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm">{subscriber.subscription.tokensLeft}</td>
+                      <td className="px-4 py-3 text-sm relative">
+                        <PaymentHistory 
+                          payments={subscriber.payments}
+                          totalPaid={subscriber.totalPaid}
+                        />
+                      </td>
                       <td className="px-4 py-3 text-sm text-right">
                         <button
                           onClick={() => setEditingSubscriber(subscriber)}
@@ -597,21 +376,6 @@ export default function SubscribersPage() {
           )}
         </div>
       </div>
-
-      <SubscriberModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onSubmit={handleAdd}
-        title="Добавить подписчика"
-      />
-
-      <SubscriberModal
-        isOpen={!!editingSubscriber}
-        onClose={() => setEditingSubscriber(null)}
-        onSubmit={handleEdit}
-        initialData={editingSubscriber || undefined}
-        title="Редактировать подписчика"
-      />
     </div>
   );
 }

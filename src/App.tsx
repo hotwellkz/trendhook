@@ -23,6 +23,7 @@ import { TermsConditions } from './components/TermsConditions';
 import SubscribersPage from './components/SubscribersPage';
 import { ProfileEditPage } from './components/ProfileEditPage';
 import { PartnersPage } from './components/PartnersPage';
+import { ChatWidget } from './components/ChatWidget';
 
 function HomePage() {
   return (
@@ -62,6 +63,7 @@ function App() {
           <Route path="/profile/edit" element={<ProfileEditPage />} />
           <Route path="/partners" element={<PartnersPage />} />
         </Routes>
+        <ChatWidget />
       </div>
     </Router>
   );

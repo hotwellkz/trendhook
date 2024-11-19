@@ -83,6 +83,7 @@ export function Dashboard() {
       </nav>
 
       <div className="flex-1 max-w-6xl mx-auto px-4 py-8">
+        {/* Приветствие и информация о подписке */}
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">
             Добро пожаловать, {user.displayName || 'Пользователь'}!
@@ -103,6 +104,7 @@ export function Dashboard() {
           </div>
         </div>
 
+        {/* Предупреждение об истекшей подписке */}
         {isTrialExpired && (
           <div className="mb-8 bg-red-500/10 text-red-500 p-4 rounded-xl flex items-start gap-3">
             <AlertCircle className="w-6 h-6 flex-shrink-0 mt-1" />
@@ -122,6 +124,21 @@ export function Dashboard() {
           </div>
         )}
 
+        {/* Кнопка создания сценария для мобильных устройств */}
+        <div className="block md:hidden mb-8">
+          {!showGenerator && (
+            <button
+              onClick={() => setShowGenerator(true)}
+              disabled={isTrialExpired}
+              className="w-full flex items-center justify-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <PlusCircle className="w-5 h-5" />
+              <span>Создать новый сценарий</span>
+            </button>
+          )}
+        </div>
+
+        {/* Информационные карточки */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
           <div className="bg-gray-800/30 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-4">
@@ -188,18 +205,21 @@ export function Dashboard() {
         {/* Сохраненные сценарии */}
         <SavedScripts />
 
-        {/* Единая кнопка создания сценария */}
-        {!showGenerator && (
-          <button
-            onClick={() => setShowGenerator(true)}
-            disabled={isTrialExpired}
-            className="flex items-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <PlusCircle className="w-5 h-5" />
-            <span>Создать новый сценарий</span>
-          </button>
-        )}
+        {/* Кнопка создания сценария для десктопа */}
+        <div className="hidden md:block">
+          {!showGenerator && (
+            <button
+              onClick={() => setShowGenerator(true)}
+              disabled={isTrialExpired}
+              className="flex items-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <PlusCircle className="w-5 h-5" />
+              <span>Создать новый сценарий</span>
+            </button>
+          )}
+        </div>
 
+        {/* Генератор сценариев */}
         {showGenerator && (
           <div className="mb-8">
             <ScriptGenerator />

@@ -42,13 +42,11 @@ googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
 googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
 
 // Устанавливаем параметры для Google Sign In
-googleProvider.setCustomParameters({
-  prompt: 'select_account',
-  client_id: import.meta.env.VITE_FIREBASE_CLIENT_ID,
-  redirect_uri: window.location.hostname === 'localhost' 
-    ? 'http://localhost:5173/__/auth/handler'
-    : 'https://trendvideo.online/__/auth/handler'
-});
+const customParameters = {
+  prompt: 'select_account'
+};
+
+googleProvider.setCustomParameters(customParameters);
 
 // Экспортируем функцию для Google входа
 export const signInWithGoogle = async () => {
@@ -56,7 +54,6 @@ export const signInWithGoogle = async () => {
     console.log('Starting Google Sign In...');
     console.log('Current domain:', window.location.hostname);
     console.log('Auth domain:', auth.app.options.authDomain);
-    console.log('Redirect URI:', googleProvider.customParameters?.redirect_uri);
     
     const result = await signInWithPopup(auth, googleProvider);
     console.log('Sign in successful:', result);

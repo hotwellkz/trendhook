@@ -7,6 +7,16 @@ export interface User {
   subscription: UserSubscription;
   paypalEmail?: string;
   stats?: UserStats;
+  payments?: Payment[];
+  totalPaid?: number;
+}
+
+export interface Payment {
+  id: string;
+  amount: number;
+  plan: SubscriptionPlan;
+  date: Date;
+  status: 'succeeded' | 'failed' | 'refunded';
 }
 
 export interface UserStats {

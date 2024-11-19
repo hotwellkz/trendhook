@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
 import TelegramBot from 'node-telegram-bot-api';
 import { initializeApp, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 
 // Инициализация Firebase Admin
 const app = initializeApp({
@@ -13,8 +13,6 @@ const app = initializeApp({
 });
 
 const db = getFirestore(app);
-
-// Инициализация бота
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: false });
 
 export const handler: Handler = async (event) => {
@@ -25,8 +23,8 @@ export const handler: Handler = async (event) => {
   try {
     const update = JSON.parse(event.body!);
 
-    // Обрабатываем только текстовые сообщения
-    if (!update.message?.text || !update.message.chat.id) {
+    // Проверяем, что это текстовое сообщение
+    if (!update.message?.text) {
       return { statusCode: 200, body: 'OK' };
     }
 
@@ -35,22 +33,34 @@ export const handler: Handler = async (event) => {
       return { statusCode: 403, body: 'Unauthorized' };
     }
 
-    // Получаем ID чата из текста сообщения (предполагается формат: "chatId:message")
-    const [chatId, ...messageParts] = update.message.text.split(':');
-    if (!chatId || messageParts.length === 0) {
-      await bot.sendMessage(update.message.chat.id, 'Неверный формат сообщения. Используйте: chatId:текст сообщения');
+    // Парсим chatId и сообщение из текста
+    // Ожидаемый формат: /reply chatId message
+    const parts = update.message.text.split(' ');
+    if (parts[0] !== '/reply' || parts.length < 3) {
+      await bot.sendMessage(
+        update.message.chat.id,
+        'Используйте формат: /reply chatId сообщение'
+      );
       return { statusCode: 200, body: 'OK' };
     }
+
+    const chatId = parts[1];
+    const message = parts.slice(2).join(' ');
 
     // Добавляем сообщение в Firestore
     const messagesRef = db.collection('chats').doc(chatId).collection('messages');
     await messagesRef.add({
-      text: messageParts.join(':').trim(),
+      text: message,
       sender: 'admin',
-      timestamp: new Date()
+      timestamp: Timestamp.now()
     });
 
-    await bot.sendMessage(update.message.chat.id, 'Сообщение отправлено');
+    // Отправляем подтверждение в Telegram
+    await bot.sendMessage(
+      update.message.chat.id,
+      `✅ Сообщение отправлено в чат ${chatId}`
+    );
+
     return { statusCode: 200, body: 'OK' };
   } catch (error) {
     console.error('Telegram webhook error:', error);

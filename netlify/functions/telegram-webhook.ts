@@ -33,10 +33,9 @@ export const handler: Handler = async (event) => {
       return { statusCode: 403, body: 'Unauthorized' };
     }
 
-    // Парсим chatId и сообщение из текста
-    // Ожидаемый формат: /reply chatId message
-    const parts = update.message.text.split(' ');
-    if (parts[0] !== '/reply' || parts.length < 3) {
+    // Проверяем формат команды
+    const match = update.message.text.match(/^\/reply\s+(\S+)\s+(.+)$/s);
+    if (!match) {
       await bot.sendMessage(
         update.message.chat.id,
         'Используйте формат: /reply chatId сообщение'
@@ -44,15 +43,33 @@ export const handler: Handler = async (event) => {
       return { statusCode: 200, body: 'OK' };
     }
 
-    const chatId = parts[1];
-    const message = parts.slice(2).join(' ');
+    const [, chatId, message] = match;
+
+    // Проверяем существование чата
+    const chatRef = db.collection('chats').doc(chatId);
+    const chatDoc = await chatRef.get();
+
+    if (!chatDoc.exists) {
+      await bot.sendMessage(
+        update.message.chat.id,
+        `❌ Чат ${chatId} не найден`
+      );
+      return { statusCode: 200, body: 'OK' };
+    }
 
     // Добавляем сообщение в Firestore
-    const messagesRef = db.collection('chats').doc(chatId).collection('messages');
+    const messagesRef = chatRef.collection('messages');
     await messagesRef.add({
-      text: message,
+      text: message.trim(),
       sender: 'admin',
       timestamp: Timestamp.now()
+    });
+
+    // Обновляем информацию о чате
+    await chatRef.update({
+      lastMessage: message.trim(),
+      lastMessageTime: Timestamp.now(),
+      unreadCount: 0 // Сбрасываем счетчик непрочитанных сообщений
     });
 
     // Отправляем подтверждение в Telegram

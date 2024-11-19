@@ -17,8 +17,13 @@ const app = initializeApp(firebaseConfig);
 // Инициализируем Auth
 const auth = getAuth(app);
 
-// Настраиваем Google Provider
+// Настраиваем Google Provider с дополнительными скопами
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
+googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 // Экспортируем функцию для Google входа
 export const signInWithGoogle = async () => {

@@ -9,7 +9,7 @@ import { FormSelect } from './FormSelect';
 import { ErrorMessage } from './ErrorMessage';
 import { GenerateButton } from './GenerateButton';
 import { ScriptResult } from './ScriptResult';
-import { Coins, AlertCircle } from 'lucide-react';
+import { Coins } from 'lucide-react';
 
 const STYLE_OPTIONS = [
   'Обучающий',
@@ -58,11 +58,6 @@ export function ScriptGenerator() {
 
     if (user.subscription.tokensLeft <= 0) {
       setError('Недостаточно токенов. Пожалуйста, обновите план.');
-      return;
-    }
-
-    if (targetAudiences.length === 0) {
-      setError('Добавьте хотя бы одну целевую аудиторию');
       return;
     }
 
@@ -184,7 +179,7 @@ export function ScriptGenerator() {
                     onClick={() => handleRemoveAudience(index)}
                     className="text-gray-400 hover:text-white"
                   >
-                    <AlertCircle className="w-4 h-4" />
+                    ×
                   </button>
                 </div>
               ))}

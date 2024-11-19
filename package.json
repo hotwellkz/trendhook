@@ -17,6 +17,7 @@
     "firebase-admin": "^12.0.0",
     "framer-motion": "^11.0.8",
     "lucide-react": "^0.344.0",
+    "node-telegram-bot-api": "^0.65.1",
     "openai": "^4.28.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
+    "@types/node-telegram-bot-api": "^0.64.3",
     "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^7.1.0",

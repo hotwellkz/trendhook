@@ -7,6 +7,14 @@ interface PlanSelectorProps {
   onPlanChange: (plan: SubscriptionPlan) => void;
 }
 
+// План переводов
+const PLAN_TRANSLATIONS: Record<SubscriptionPlan, string> = {
+  'free': 'Бесплатный',
+  'content-creator': 'Контент-мейкер',
+  'business': 'Бизнес',
+  'agency': 'Агентство'
+};
+
 export function PlanSelector({ currentPlan, onPlanChange }: PlanSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const plans: SubscriptionPlan[] = ['free', 'content-creator', 'business', 'agency'];
@@ -17,7 +25,7 @@ export function PlanSelector({ currentPlan, onPlanChange }: PlanSelectorProps) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-1 text-sm hover:text-[#AAFF00] transition-colors"
       >
-        {currentPlan}
+        {PLAN_TRANSLATIONS[currentPlan]}
         <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
@@ -34,7 +42,7 @@ export function PlanSelector({ currentPlan, onPlanChange }: PlanSelectorProps) {
                 plan === currentPlan ? 'text-[#AAFF00]' : 'text-gray-400'
               }`}
             >
-              {plan}
+              {PLAN_TRANSLATIONS[plan]}
             </button>
           ))}
         </div>

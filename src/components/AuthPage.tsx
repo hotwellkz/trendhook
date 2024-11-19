@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, AlertCircle, Home, Eye, EyeOff } from 'lucide-react';
-import { auth, googleProvider } from '../config/firebase';
+import { auth } from '../config/firebase';
+import { signInWithGoogle } from '../config/firebase';
 import { 
   signInWithEmailAndPassword, 
-  signInWithPopup,
-  onAuthStateChanged
+  onAuthStateChanged,
+  getRedirectResult
 } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,6 +18,21 @@ export function AuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const checkRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          console.log('Redirect success:', result.user);
+          navigate('/dashboard');
+        }
+      } catch (error) {
+        console.error('Redirect error:', error);
+        setError(getErrorMessage((error as any).code));
+      }
+    };
+
+    checkRedirectResult();
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         navigate('/dashboard');
@@ -47,15 +63,11 @@ export function AuthPage() {
     setError('');
     
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      console.log('Google sign in success:', result);
-      if (result.user) {
-        navigate('/dashboard');
-      }
+      await signInWithGoogle();
+      // Редирект произойдет автоматически
     } catch (err: any) {
       console.error('Google sign in error:', err);
       setError(getErrorMessage(err.code));
-    } finally {
       setIsLoading(false);
     }
   };

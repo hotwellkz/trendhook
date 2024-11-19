@@ -6,6 +6,40 @@ interface DiscoveryItemProps {
   text: string;
 }
 
+interface TestimonialProps {
+  image: string;
+  name: string;
+  role: string;
+}
+
+const testimonials: TestimonialProps[] = [
+  {
+    image: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=800&auto=format&fit=crop&q=60",
+    name: "Алексей Морозов",
+    role: "Владелец бизнеса на 7 цифр"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop&q=60",
+    name: "Анна Петрова",
+    role: "Digital-маркетолог"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&auto=format&fit=crop&q=60",
+    name: "Дмитрий Соколов",
+    role: "CEO IT-компании"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=60",
+    name: "Мария Иванова",
+    role: "Контент-криейтор"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&auto=format&fit=crop&q=60",
+    name: "Павел Волков",
+    role: "Предприниматель"
+  }
+];
+
 function DiscoveryItem({ text }: DiscoveryItemProps) {
   return (
     <div className="flex items-start gap-3">
@@ -13,6 +47,24 @@ function DiscoveryItem({ text }: DiscoveryItemProps) {
         <Check className="w-5 h-5 text-[#AAFF00]" />
       </div>
       <p className="text-gray-300">{text}</p>
+    </div>
+  );
+}
+
+function Testimonial({ image, name, role }: TestimonialProps) {
+  return (
+    <div className="relative flex-shrink-0 w-[300px] mx-4">
+      <div className="aspect-square rounded-3xl overflow-hidden">
+        <img
+          src={image}
+          alt={name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur-sm p-4 rounded-xl">
+        <h3 className="text-xl font-bold">{name}</h3>
+        <p className="text-gray-400">{role}</p>
+      </div>
     </div>
   );
 }
@@ -44,17 +96,12 @@ export function HowToSection() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-12 items-center">
-        <div className="relative">
-          <div className="aspect-square rounded-3xl overflow-hidden">
-            <img
-              src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=800&auto=format&fit=crop&q=60"
-              alt="Профессионал"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur-sm p-4 rounded-xl">
-            <h3 className="text-xl font-bold">Алексей Морозов</h3>
-            <p className="text-gray-400">Владелец бизнеса на 7 цифр</p>
+        {/* Карусель с отзывами */}
+        <div className="relative overflow-hidden">
+          <div className="flex animate-marquee">
+            {[...testimonials, ...testimonials].map((testimonial, index) => (
+              <Testimonial key={`${testimonial.name}-${index}`} {...testimonial} />
+            ))}
           </div>
         </div>
 

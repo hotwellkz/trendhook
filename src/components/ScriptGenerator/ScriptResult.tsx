@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlusCircle, Copy, Share2, Download, Check, Edit2, Save, Clock } from 'lucide-react';
 
 interface ScriptResultProps {
@@ -169,7 +169,8 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
           <textarea
             value={editedScript}
             onChange={(e) => setEditedScript(e.target.value)}
-            className="w-full h-[200px] md:h-[300px] lg:h-[400px] bg-black/40 rounded-lg p-4 text-white resize-none focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 text-sm md:text-base"
+            className="w-full min-h-[200px] md:min-h-[300px] lg:min-h-[400px] bg-black/40 rounded-lg p-4 text-white resize-y focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 text-sm md:text-base"
+            style={{ height: 'auto' }}
           />
         ) : (
           <div className="bg-black/40 rounded-lg p-4 whitespace-pre-wrap text-sm md:text-base">

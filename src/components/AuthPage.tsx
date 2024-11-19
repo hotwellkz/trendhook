@@ -43,12 +43,29 @@ export function AuthPage() {
     setError('');
     
     try {
+      // Логируем начало процесса
+      console.log('Starting Google Sign In process...');
+      
+      // Проверяем домен
+      console.log('Current domain:', window.location.hostname);
+      console.log('Firebase Auth domain:', auth.app.options.authDomain);
+      
       const result = await signInWithGoogle();
+      console.log('Google Sign In successful:', result);
+      
       if (result.user) {
         navigate('/dashboard');
       }
     } catch (err: any) {
       console.error('Google sign in error:', err);
+      console.error('Error code:', err.code);
+      console.error('Error message:', err.message);
+      
+      // Проверяем специфические ошибки OAuth
+      if (err.code === 'auth/internal-error') {
+        console.error('OAuth Details:', err.customData?.customData);
+      }
+      
       setError(getErrorMessage(err.code));
     } finally {
       setIsLoading(false);
@@ -65,16 +82,22 @@ export function AuthPage() {
         return 'Пользователь не найден';
       case 'auth/wrong-password':
         return 'Неверный пароль';
+      case 'auth/popup-blocked':
+        return 'Браузер заблокировал всплывающее окно. Пожалуйста, разрешите всплывающие окна для этого сайта.';
       case 'auth/popup-closed-by-user':
         return 'Окно авторизации было закрыто. Пожалуйста, попробуйте снова.';
       case 'auth/cancelled-popup-request':
-        return 'Операция была отменена. Пожалуйста, попробуйте снова.';
-      case 'auth/operation-not-allowed':
-        return 'Этот метод входа временно недоступен. Пожалуйста, используйте другой способ.';
+        return 'Предыдущий запрос авторизации все еще выполняется.';
       case 'auth/unauthorized-domain':
-        return `Домен ${window.location.hostname} не авторизован для входа через Google. Пожалуйста, свяжитесь с администратором.`;
+        return `Домен ${window.location.hostname} не авторизован для входа через Google. Необходимо добавить его в Firebase Console.`;
+      case 'auth/internal-error':
+        return 'Произошла внутренняя ошибка аутентификации. Пожалуйста, проверьте консоль для деталей.';
+      case 'auth/network-request-failed':
+        return 'Ошибка сети. Пожалуйста, проверьте подключение к интернету.';
+      case 'auth/operation-not-allowed':
+        return 'Вход через Google не включен. Необходимо включить его в Firebase Console.';
       default:
-        return 'Произошла ошибка при входе. Пожалуйста, попробуйте позже или используйте другой способ входа.';
+        return `Произошла ошибка при входе (${errorCode}). Пожалуйста, попробуйте позже.`;
     }
   };
 

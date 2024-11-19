@@ -18,6 +18,7 @@ interface CreateUserData {
 }
 
 const TRIAL_PERIOD_DAYS = 7;
+const SUBSCRIPTION_PERIOD_DAYS = 30;
 const INITIAL_TOKENS = 10;
 
 export const createUser = async (userId: string, userData: CreateUserData): Promise<User> => {
@@ -128,6 +129,45 @@ export const incrementScriptCount = async (userId: string): Promise<void> => {
   } catch (error) {
     console.error('Error incrementing script count:', error);
     throw new Error('Не удалось обновить статистику');
+  }
+};
+
+export const updateUserPlan = async (userId: string, plan: SubscriptionPlan): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const now = new Date();
+    
+    // Если план не бесплатный, устанавливаем период в 30 дней
+    const expiresAt = plan === 'free' 
+      ? now 
+      : new Date(now.getTime() + SUBSCRIPTION_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+
+    // Определяем количество токенов в зависимости от плана
+    let tokensLeft = 0;
+    switch (plan) {
+      case 'content-creator':
+        tokensLeft = 60;
+        break;
+      case 'business':
+        tokensLeft = 250;
+        break;
+      case 'agency':
+        tokensLeft = 999999; // Безлимитные токены
+        break;
+      default:
+        tokensLeft = INITIAL_TOKENS;
+    }
+
+    await updateDoc(userRef, {
+      'subscription.plan': plan,
+      'subscription.status': plan === 'free' ? 'expired' : 'active',
+      'subscription.expiresAt': Timestamp.fromDate(expiresAt),
+      'subscription.tokensLeft': tokensLeft,
+      'subscription.lastUpdated': Timestamp.fromDate(now)
+    });
+  } catch (error) {
+    console.error('Error updating user plan:', error);
+    throw new Error('Не удалось обновить план пользователя');
   }
 };
 

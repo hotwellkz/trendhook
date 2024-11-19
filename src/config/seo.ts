@@ -41,26 +41,24 @@ export const seoConfig: SEOConfig = {
       canonicalUrl: "https://trendvideo.online",
       ogTitle: "Генератор сценариев для видео | Создавайте вирусный контент с ИИ",
       ogDescription: "Автоматизируйте создание сценариев для видео с помощью искусственного интеллекта. Экономьте время на создании контента!",
-      ogImage: "https://trendvideo.online/og-image.jpg",
-      structuredData: {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "TrendVideo AI Script Generator",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web",
-        "description": "Профессиональный генератор сценариев для видео с искусственным интеллектом",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "156"
-        }
-      }
+      ogImage: "https://trendvideo.online/og-image.jpg"
     },
-    // ... остальные страницы ...
+    aiScripts: {
+      title: "AI Генератор сценариев | TrendVideo - Создание вирусного контента",
+      h1: "Нейросеть для генерации сценариев",
+      description: "Создавайте профессиональные сценарии для видео с помощью искусственного интеллекта. Экономьте время и ресурсы на создании контента.",
+      focusKeyword: "ai генератор сценариев",
+      keywords: [
+        "ai генератор сценариев",
+        "нейросеть для сценариев",
+        "автоматическая генерация сценариев",
+        "искусственный интеллект для видео",
+        "создание контента с ии"
+      ],
+      canonicalUrl: "https://trendvideo.online/ai-scripts",
+      ogTitle: "AI Генератор сценариев | Создавайте вирусный контент",
+      ogDescription: "Используйте искусственный интеллект для создания профессиональных сценариев. Экономьте до 90% времени!",
+      ogImage: "https://trendvideo.online/og-image.jpg"
+    }
   }
 };

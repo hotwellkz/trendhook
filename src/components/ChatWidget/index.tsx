@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, X, Send, Loader2 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { doc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { 
+  doc, 
+  collection, 
+  addDoc, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  serverTimestamp, 
+  updateDoc,
+  increment,
+  Timestamp 
+} from 'firebase/firestore';
 import { db } from '../../config/firebase';
 
 interface Message {
@@ -17,8 +28,8 @@ export function ChatWidget() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [chatId, setChatId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return undefined;

@@ -189,38 +189,22 @@ export function ScriptGenerator() {
                 </div>
               ))}
             </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Например: 'Предприниматели 25-45 лет'"
-                className="flex-1 bg-black/40 rounded-lg px-3 md:px-4 py-2.5 text-sm md:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const input = e.target as HTMLInputElement;
-                    if (input.value.trim()) {
-                      handleAddAudience(input.value.trim());
-                      input.value = '';
-                    }
-                  }
-                }}
-                disabled={loading}
-              />
-              <button
-                type="button"
-                onClick={(e) => {
-                  const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+            <input
+              type="text"
+              placeholder="Например: 'Предприниматели 25-45 лет' (нажмите Enter для добавления)"
+              className="w-full bg-black/40 rounded-lg px-3 md:px-4 py-2.5 text-sm md:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const input = e.target as HTMLInputElement;
                   if (input.value.trim()) {
                     handleAddAudience(input.value.trim());
                     input.value = '';
                   }
-                }}
-                className="bg-[#AAFF00] text-black px-4 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={loading}
-              >
-                Добавить
-              </button>
-            </div>
+                }
+              }}
+              disabled={loading}
+            />
           </div>
 
           <FormSelect

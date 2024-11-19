@@ -25,27 +25,36 @@ export function ChatWidget() {
 
     // Создаем или получаем существующий чат
     const initChat = async () => {
-      const chatsRef = collection(db, 'chats');
-      const chatDoc = await addDoc(chatsRef, {
-        userId: user.id,
-        userEmail: user.email,
-        createdAt: serverTimestamp()
-      });
-      setChatId(chatDoc.id);
+      try {
+        // Проверяем существующие чаты пользователя
+        const chatsRef = collection(db, 'chats');
+        const chatDoc = await addDoc(chatsRef, {
+          userId: user.id,
+          userEmail: user.email,
+          createdAt: serverTimestamp(),
+          lastMessage: null,
+          unreadCount: 0
+        });
+        
+        setChatId(chatDoc.id);
 
-      // Подписываемся на сообщения
-      const messagesRef = collection(db, 'chats', chatDoc.id, 'messages');
-      const q = query(messagesRef, orderBy('timestamp', 'asc'));
-      
-      return onSnapshot(q, (snapshot) => {
-        const newMessages = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          timestamp: doc.data().timestamp?.toDate() || new Date()
-        })) as Message[];
-        setMessages(newMessages);
-        scrollToBottom();
-      });
+        // Подписываемся на сообщения
+        const messagesRef = collection(db, 'chats', chatDoc.id, 'messages');
+        const q = query(messagesRef, orderBy('timestamp', 'asc'));
+        
+        return onSnapshot(q, (snapshot) => {
+          const newMessages = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            timestamp: doc.data().timestamp?.toDate() || new Date()
+          })) as Message[];
+          setMessages(newMessages);
+          scrollToBottom();
+        });
+      } catch (error) {
+        console.error('Error initializing chat:', error);
+        return () => {};
+      }
     };
 
     const unsubscribePromise = initChat();
@@ -74,6 +83,14 @@ export function ChatWidget() {
         text: message,
         sender: 'user',
         timestamp: serverTimestamp()
+      });
+
+      // Обновляем информацию о последнем сообщении
+      const chatRef = doc(db, 'chats', chatId);
+      await updateDoc(chatRef, {
+        lastMessage: message,
+        lastMessageTime: serverTimestamp(),
+        unreadCount: increment(1)
       });
 
       // Отправляем уведомление в Telegram
@@ -116,25 +133,31 @@ export function ChatWidget() {
 
           {/* Messages */}
           <div className="h-96 overflow-y-auto p-4 space-y-4">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                    msg.sender === 'user'
-                      ? 'bg-[#AAFF00] text-black'
-                      : 'bg-gray-800 text-white'
-                  }`}
-                >
-                  <p className="text-sm">{msg.text}</p>
-                  <span className="text-xs opacity-75 mt-1 block">
-                    {msg.timestamp instanceof Date ? msg.timestamp.toLocaleTimeString() : 'Сейчас'}
-                  </span>
-                </div>
+            {messages.length === 0 ? (
+              <div className="text-center text-gray-400 py-8">
+                Напишите нам, мы онлайн 👋
               </div>
-            ))}
+            ) : (
+              messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                      msg.sender === 'user'
+                        ? 'bg-[#AAFF00] text-black'
+                        : 'bg-gray-800 text-white'
+                    }`}
+                  >
+                    <p className="text-sm">{msg.text}</p>
+                    <span className="text-xs opacity-75 mt-1 block">
+                      {msg.timestamp instanceof Date ? msg.timestamp.toLocaleTimeString() : 'Сейчас'}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
             <div ref={messagesEndRef} />
           </div>
 

@@ -2,23 +2,6 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-const requiredEnvVars = [
-  'VITE_FIREBASE_API_KEY',
-  'VITE_FIREBASE_AUTH_DOMAIN',
-  'VITE_FIREBASE_PROJECT_ID',
-  'VITE_FIREBASE_STORAGE_BUCKET',
-  'VITE_FIREBASE_MESSAGING_SENDER_ID',
-  'VITE_FIREBASE_APP_ID',
-  'VITE_FIREBASE_CLIENT_ID'
-] as const;
-
-for (const envVar of requiredEnvVars) {
-  if (!import.meta.env[envVar]) {
-    console.error(`Missing required environment variable: ${envVar}`);
-    throw new Error(`Missing required environment variable: ${envVar}`);
-  }
-}
-
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -42,11 +25,10 @@ googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
 googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
 
 // Устанавливаем параметры для Google Sign In
-const customParameters = {
-  prompt: 'select_account'
-};
-
-googleProvider.setCustomParameters(customParameters);
+googleProvider.setCustomParameters({
+  prompt: 'select_account',
+  login_hint: 'user@example.com'
+});
 
 // Экспортируем функцию для Google входа
 export const signInWithGoogle = async () => {
@@ -63,7 +45,10 @@ export const signInWithGoogle = async () => {
     console.error('Error code:', error.code);
     console.error('Error message:', error.message);
     
+    // Добавляем больше информации об ошибке
     if (error.code === 'auth/unauthorized-domain') {
+      console.error('Current domain:', window.location.hostname);
+      console.error('Authorized domain:', auth.app.options.authDomain);
       error.message = `Domain ${window.location.hostname} is not authorized. Please add it to Firebase Console -> Authentication -> Settings -> Authorized domains`;
     }
     

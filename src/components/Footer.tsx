@@ -3,13 +3,6 @@ import { Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Footer() {
-  const socialLinks = [
-    { name: 'Instagram', href: 'https://instagram.com/trendvideo.online', icon: 'instagram.svg' },
-    { name: 'X (Twitter)', href: 'https://twitter.com/trendvideo_ai', icon: 'twitter.svg' },
-    { name: 'YouTube', href: 'https://youtube.com/@trendvideo', icon: 'youtube.svg' },
-    { name: 'Facebook', href: 'https://facebook.com/trendvideo.online', icon: 'facebook.svg' }
-  ];
-
   const legalLinks = [
     { name: 'Политика конфиденциальности', href: '/privacy' },
     { name: 'Политика cookies', href: '/cookies' },
@@ -54,38 +47,17 @@ export function Footer() {
             © 2024 TrendVideo AI. Все права защищены.
           </div>
           
-          {/* Социальные сети и правовые ссылки */}
-          <div className="flex flex-col sm:flex-row items-center gap-6 order-1 md:order-2 w-full md:w-auto">
-            {/* Социальные сети */}
-            <div className="flex gap-4 justify-center">
-              {socialLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-gray-400 hover:text-[#AAFF00] transition-colors"
-                  aria-label={link.name}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div className="w-8 h-8 rounded-full bg-gray-800/50 flex items-center justify-center">
-                    <span className="text-lg">{link.name === 'X (Twitter)' ? '𝕏' : link.name[0]}</span>
-                  </div>
-                </a>
-              ))}
-            </div>
-            
-            {/* Правовые ссылки */}
-            <div className="flex flex-wrap gap-4 justify-center text-sm">
-              {legalLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  className="text-gray-400 hover:text-white transition-colors whitespace-nowrap"
-                >
-                  {link.name}
-                </Link>
-              ))}
-            </div>
+          {/* Правовые ссылки */}
+          <div className="flex flex-wrap gap-4 justify-center text-sm order-1 md:order-2">
+            {legalLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
+                className="text-gray-400 hover:text-white transition-colors whitespace-nowrap"
+              >
+                {link.name}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

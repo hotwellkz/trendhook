@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 interface FormSelectProps {
@@ -24,10 +24,18 @@ export function FormSelect({
 }: FormSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCustom, setIsCustom] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isCustom && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isCustom]);
 
   const handleSelect = (option: string) => {
     if (option === 'custom') {
       setIsCustom(true);
+      onChange('');
     } else {
       onChange(option);
       setIsCustom(false);
@@ -43,6 +51,7 @@ export function FormSelect({
       
       {isCustom ? (
         <input
+          ref={inputRef}
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}

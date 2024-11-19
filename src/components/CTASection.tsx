@@ -23,20 +23,16 @@ export function CTASection() {
     setError('');
 
     try {
-      // Генерируем случайный пароль для пользователя
       const tempPassword = Math.random().toString(36).slice(-12);
       
-      // Создаем пользователя в Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
       
-      // Создаем запись пользователя в Firestore
       await createUser(userCredential.user.uid, {
         email: userCredential.user.email!,
         displayName: null,
         photoURL: null
       });
 
-      // Перенаправляем на дашборд
       navigate('/dashboard');
     } catch (err) {
       console.error('Registration error:', err);
@@ -56,10 +52,11 @@ export function CTASection() {
     <section className="max-w-6xl mx-auto px-4 py-12 md:py-16 lg:py-20">
       <div className="bg-gray-800/30 rounded-[2rem] p-6 md:p-8 lg:p-12 text-center">
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
-          Готовы стать вирусным?
+          Попробуйте наш генератор сценариев
         </h2>
         <p className="text-gray-400 text-base md:text-lg lg:text-xl mb-6 md:mb-8 px-2 md:px-8 lg:px-12">
-          Зарегистрируйтесь в ViralHooks и начните видеть результаты — без скрытых условий.
+          Создавайте профессиональные сценарии для видео с помощью искусственного интеллекта. 
+          Экономьте до 90% времени на написании сценариев.
         </p>
         
         <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-8 mb-6 md:mb-8">
@@ -70,6 +67,10 @@ export function CTASection() {
           <div className="flex items-center justify-center gap-2">
             <Check className="w-4 h-4 md:w-5 md:h-5 text-[#AAFF00]" />
             <span className="text-gray-400 text-sm md:text-base">7 дней бесплатно</span>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <Check className="w-4 h-4 md:w-5 md:h-5 text-[#AAFF00]" />
+            <span className="text-gray-400 text-sm md:text-base">10 бесплатных сценариев</span>
           </div>
         </div>
 
@@ -93,7 +94,7 @@ export function CTASection() {
                   <span>Подождите...</span>
                 </>
               ) : (
-                'Присоединиться'
+                'Создать сценарий'
               )}
             </button>
           </div>

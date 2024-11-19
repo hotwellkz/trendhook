@@ -5,12 +5,12 @@ export function ReelsLibrary() {
   const navigate = useNavigate();
   
   const platforms = [
-    { name: 'Shorts', status: 'coming soon', icon: '📱' },
-    { name: 'X (Twitter)', status: 'coming soon', icon: '𝕏' },
-    { name: 'Reels', status: 'support now', icon: '📸' },
-    { name: 'Pinterest', status: 'coming soon', icon: '📌' },
-    { name: 'Tiktok', status: 'coming soon', icon: '🎵' },
-    { name: 'Facebook', status: 'coming soon', icon: '👥' }
+    { name: 'Shorts', status: 'скоро', icon: '📱' },
+    { name: 'X (Twitter)', status: 'скоро', icon: '𝕏' },
+    { name: 'Reels', status: 'доступно', icon: '📸' },
+    { name: 'Pinterest', status: 'скоро', icon: '📌' },
+    { name: 'Tiktok', status: 'скоро', icon: '🎵' },
+    { name: 'Facebook', status: 'скоро', icon: '👥' }
   ];
 
   return (

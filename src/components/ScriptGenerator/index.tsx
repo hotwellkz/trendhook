@@ -30,23 +30,13 @@ export function ScriptGenerator() {
   const [topic, setTopic] = useState('');
   const [duration, setDuration] = useState('60');
   const [style, setStyle] = useState('');
-  const [targetAudiences, setTargetAudiences] = useState<string[]>([]);
+  const [targetAudience, setTargetAudience] = useState('');
   const [objective, setObjective] = useState('');
   const [script, setScript] = useState('');
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [scriptId, setScriptId] = useState<string>('');
-
-  const handleAddAudience = (audience: string) => {
-    if (!targetAudiences.includes(audience)) {
-      setTargetAudiences([...targetAudiences, audience]);
-    }
-  };
-
-  const handleRemoveAudience = (index: number) => {
-    setTargetAudiences(targetAudiences.filter((_, i) => i !== index));
-  };
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,41 +51,39 @@ export function ScriptGenerator() {
       return;
     }
 
+    if (!targetAudience.trim()) {
+      setError('Укажите целевую аудиторию');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      const scripts = await Promise.all(targetAudiences.map(audience => 
-        aiService.generateScript({
-          topic,
-          duration: parseInt(duration),
-          style,
-          targetAudience: audience,
-          objective
-        })
-      ));
+      const generatedScript = await aiService.generateScript({
+        topic,
+        duration: parseInt(duration),
+        style,
+        targetAudience,
+        objective
+      });
 
-      const analyses = await Promise.all(scripts.map(script => 
-        aiService.analyzeViralPotential(script)
-      ));
+      const scriptAnalysis = await aiService.analyzeViralPotential(generatedScript);
 
       const userRef = doc(db, 'users', user.id);
       await updateDoc(userRef, {
-        'subscription.tokensLeft': user.subscription.tokensLeft - targetAudiences.length
+        'subscription.tokensLeft': user.subscription.tokensLeft - 1
       });
 
       await incrementScriptCount(user.id);
 
-      const combinedScript = scripts.join('\n\n=== Следующая аудитория ===\n\n');
-      const combinedAnalysis = analyses.join('\n\n=== Следующий анализ ===\n\n');
-
-      setScript(combinedScript);
-      setAnalysis(combinedAnalysis);
+      setScript(generatedScript);
+      setAnalysis(scriptAnalysis);
 
       const savedScriptId = await saveScript(
         user.id,
-        combinedScript,
-        combinedAnalysis,
+        generatedScript,
+        scriptAnalysis,
         topic,
         style,
         objective
@@ -114,7 +102,7 @@ export function ScriptGenerator() {
     setScript('');
     setAnalysis('');
     setError('');
-    setTargetAudiences([]);
+    setTargetAudience('');
     setScriptId('');
   };
 
@@ -165,39 +153,15 @@ export function ScriptGenerator() {
 
           <div className="space-y-2 bg-black/20 p-3 md:p-4 rounded-xl">
             <label className="block text-white text-sm md:text-base font-medium">
-              Целевые аудитории
+              Целевая аудитория
             </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {targetAudiences.map((audience, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-800/50 px-3 py-1.5 rounded-lg flex items-center gap-2"
-                >
-                  <span className="text-sm">{audience}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveAudience(index)}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
             <input
               type="text"
-              placeholder="Например: 'Предприниматели 25-45 лет' (нажмите Enter для добавления)"
+              value={targetAudience}
+              onChange={(e) => setTargetAudience(e.target.value)}
+              placeholder="Например: 'Предприниматели 25-45 лет'"
               className="w-full bg-black/40 rounded-lg px-3 md:px-4 py-2.5 text-sm md:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  const input = e.target as HTMLInputElement;
-                  if (input.value.trim()) {
-                    handleAddAudience(input.value.trim());
-                    input.value = '';
-                  }
-                }
-              }}
+              required
               disabled={loading}
             />
           </div>

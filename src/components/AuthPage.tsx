@@ -49,8 +49,10 @@ export function AuthPage() {
     
     try {
       const provider = new GoogleAuthProvider();
-      provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
-      provider.addScope('https://www.googleapis.com/auth/userinfo.email');
+      // Настраиваем провайдер
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
       
       const result = await signInWithPopup(auth, provider);
       if (result.user) {
@@ -74,10 +76,10 @@ export function AuthPage() {
         return 'Пользователь не найден';
       case 'auth/wrong-password':
         return 'Неверный пароль';
-      case 'auth/unauthorized-domain':
-        return 'Этот домен не авторизован для входа через Google. Пожалуйста, используйте email или свяжитесь с администратором.';
       case 'auth/popup-blocked':
         return 'Пожалуйста, разрешите всплывающие окна для этого сайта и попробуйте снова.';
+      case 'auth/popup-closed-by-user':
+        return 'Окно авторизации было закрыто. Пожалуйста, попробуйте снова.';
       case 'auth/cancelled-popup-request':
         return 'Операция была отменена. Пожалуйста, попробуйте снова.';
       case 'auth/operation-not-allowed':

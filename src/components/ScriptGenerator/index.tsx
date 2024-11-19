@@ -141,7 +141,7 @@ export function ScriptGenerator() {
             label="Тема видео"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="Например: '5 способов улучшить продуктивность'"
+            placeholder="Например: 'Как начать свой бизнес с нуля'"
             required
             disabled={loading}
           />

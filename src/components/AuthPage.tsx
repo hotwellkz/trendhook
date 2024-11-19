@@ -20,6 +20,7 @@ export function AuthPage() {
   useEffect(() => {
     const checkRedirectResult = async () => {
       try {
+        console.log('Checking redirect result...');
         const result = await getRedirectResult(auth);
         if (result?.user) {
           console.log('Redirect success:', result.user);
@@ -35,6 +36,7 @@ export function AuthPage() {
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
+        console.log('User is signed in:', user);
         navigate('/dashboard');
       }
     });
@@ -63,6 +65,7 @@ export function AuthPage() {
     setError('');
     
     try {
+      console.log('Starting Google sign in...');
       await signInWithGoogle();
       // Редирект произойдет автоматически
     } catch (err: any) {
@@ -73,6 +76,7 @@ export function AuthPage() {
   };
 
   const getErrorMessage = (errorCode: string) => {
+    console.log('Error code:', errorCode);
     switch (errorCode) {
       case 'auth/invalid-email':
         return 'Неверный формат email';

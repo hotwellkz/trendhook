@@ -25,8 +25,6 @@ const OBJECTIVE_OPTIONS = [
   'Обучение'
 ];
 
-const MAX_TRIAL_AUDIENCES = 20;
-
 export function ScriptGenerator() {
   const { user } = useAuth();
   const [topic, setTopic] = useState('');
@@ -40,33 +38,7 @@ export function ScriptGenerator() {
   const [error, setError] = useState('');
   const [scriptId, setScriptId] = useState<string>('');
 
-  const getAudienceLimit = () => {
-    if (user?.subscription?.status === 'trial') {
-      return MAX_TRIAL_AUDIENCES;
-    }
-
-    switch (user?.subscription?.plan) {
-      case 'content-creator':
-        return 1;
-      case 'business':
-        return 4;
-      case 'agency':
-        return 20;
-      default:
-        return 1;
-    }
-  };
-
-  const audienceLimit = getAudienceLimit();
-
   const handleAddAudience = (audience: string) => {
-    if (targetAudiences.length >= audienceLimit) {
-      const message = user?.subscription?.status === 'trial' 
-        ? `В пробном периоде доступно до ${MAX_TRIAL_AUDIENCES} целевых аудиторий`
-        : `Ваш план позволяет использовать только ${audienceLimit} целевых аудиторий`;
-      setError(message);
-      return;
-    }
     if (!targetAudiences.includes(audience)) {
       setTargetAudiences([...targetAudiences, audience]);
     }
@@ -125,7 +97,6 @@ export function ScriptGenerator() {
       setScript(combinedScript);
       setAnalysis(combinedAnalysis);
 
-      // Сохраняем сценарий
       const savedScriptId = await saveScript(
         user.id,
         combinedScript,
@@ -199,12 +170,7 @@ export function ScriptGenerator() {
 
           <div className="space-y-2 bg-black/20 p-3 md:p-4 rounded-xl">
             <label className="block text-white text-sm md:text-base font-medium">
-              Целевые аудитории ({targetAudiences.length}/{audienceLimit})
-              {user?.subscription?.status === 'trial' && (
-                <span className="text-[#AAFF00] ml-2 text-sm">
-                  Пробный период: доступны все аудитории
-                </span>
-              )}
+              Целевые аудитории
             </label>
             <div className="flex flex-wrap gap-2 mb-2">
               {targetAudiences.map((audience, index) => (
@@ -238,7 +204,7 @@ export function ScriptGenerator() {
                     }
                   }
                 }}
-                disabled={targetAudiences.length >= audienceLimit || loading}
+                disabled={loading}
               />
               <button
                 type="button"
@@ -250,18 +216,11 @@ export function ScriptGenerator() {
                   }
                 }}
                 className="bg-[#AAFF00] text-black px-4 py-2 rounded-lg font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={targetAudiences.length >= audienceLimit || loading}
+                disabled={loading}
               >
                 Добавить
               </button>
             </div>
-            {targetAudiences.length >= audienceLimit && (
-              <p className="text-yellow-500 text-sm mt-2">
-                {user?.subscription?.status === 'trial'
-                  ? 'Достигнут лимит целевых аудиторий для пробного периода'
-                  : 'Достигнут лимит целевых аудиторий для вашего плана'}
-              </p>
-            )}
           </div>
 
           <FormSelect

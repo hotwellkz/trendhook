@@ -1,156 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, ArrowLeft, Search, Plus, Download, Edit2, Trash2, Loader2, X, ChevronDown, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Activity, ArrowLeft, Search, Plus, Download, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { doc, deleteDoc, collection, getDocs, updateDoc } from 'firebase/firestore';
+import { doc, deleteDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import type { User, Payment, SubscriptionPlan } from '../types/database';
-
-function PaymentHistory({ payments, totalPaid }: { payments?: Payment[], totalPaid?: number }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  if (!payments?.length) return null;
-
-  return (
-    <div>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-sm text-[#AAFF00] hover:underline flex items-center gap-1"
-      >
-        Всего оплачено: ${totalPaid?.toFixed(2) || '0.00'}
-        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-      
-      {isOpen && (
-        <div className="absolute mt-2 bg-black/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-800 p-4 z-20 min-w-[200px]">
-          <h4 className="text-sm font-medium mb-2">История платежей:</h4>
-          <div className="space-y-2 max-h-[200px] overflow-y-auto">
-            {payments.map((payment) => (
-              <div
-                key={payment.id}
-                className={`text-xs ${
-                  payment.status === 'refunded' ? 'text-red-400' : 'text-gray-400'
-                }`}
-              >
-                <div className="flex justify-between items-center">
-                  <span>{new Date(payment.date).toLocaleDateString()}</span>
-                  <span className={payment.status === 'refunded' ? 'text-red-400' : 'text-[#AAFF00]'}>
-                    {payment.status === 'refunded' ? '-' : ''}${Math.abs(payment.amount).toFixed(2)}
-                  </span>
-                </div>
-                <div className="text-gray-500">{payment.plan}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PlanSelector({ currentPlan, onPlanChange }: { currentPlan: SubscriptionPlan, onPlanChange: (plan: SubscriptionPlan) => void }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const plans: SubscriptionPlan[] = ['free', 'content-creator', 'business', 'agency'];
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 text-sm hover:text-[#AAFF00] transition-colors"
-      >
-        {currentPlan}
-        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-
-      {isOpen && (
-        <div className="absolute mt-1 bg-black/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-800 py-1 z-10">
-          {plans.map((plan) => (
-            <button
-              key={plan}
-              onClick={() => {
-                onPlanChange(plan);
-                setIsOpen(false);
-              }}
-              className={`w-full px-4 py-2 text-left text-sm hover:bg-[#AAFF00]/10 transition-colors ${
-                plan === currentPlan ? 'text-[#AAFF00]' : 'text-gray-400'
-              }`}
-            >
-              {plan}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PasswordProtection({ onSuccess }: { onSuccess: () => void }) {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === 'fghRTht3@') {
-      onSuccess();
-    } else {
-      setError('Неверный пароль');
-      setPassword('');
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <Lock className="w-8 h-8 text-[#AAFF00]" />
-          <h1 className="text-2xl font-bold">Доступ к подписчикам</h1>
-        </div>
-
-        <div className="bg-gray-800/30 rounded-xl p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Пароль для доступа
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/40 rounded-lg pl-4 pr-10 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50"
-                  placeholder="Введите пароль"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <div className="text-red-500 text-sm bg-red-500/10 p-3 rounded-lg flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="w-full bg-[#AAFF00] text-black py-3 rounded-lg font-medium hover:bg-[#88CC00] transition-colors"
-            >
-              Войти
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { updateUserPlan } from '../services/firestore';
+import type { User, SubscriptionPlan } from '../types/database';
+import { PasswordProtection } from './Subscribers/PasswordProtection';
+import { SubscribersList } from './Subscribers/SubscribersList';
 
 export default function SubscribersPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -193,16 +50,20 @@ export default function SubscribersPage() {
 
   const handleQuickPlanChange = async (userId: string, plan: SubscriptionPlan) => {
     try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        'subscription.plan': plan,
-        'subscription.updatedAt': new Date()
-      });
+      await updateUserPlan(userId, plan);
       
       setSubscribers(prev => 
         prev.map(sub => 
           sub.id === userId 
-            ? { ...sub, subscription: { ...sub.subscription, plan } }
+            ? { 
+                ...sub, 
+                subscription: { 
+                  ...sub.subscription, 
+                  plan,
+                  status: plan === 'free' ? 'expired' : 'active',
+                  expiresAt: new Date(Date.now() + (plan === 'free' ? 0 : 30 * 24 * 60 * 60 * 1000))
+                } 
+              }
             : sub
         )
       );
@@ -310,69 +171,12 @@ export default function SubscribersPage() {
               {searchTerm ? 'Подписчики не найдены' : 'Нет подписчиков'}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-black/20">
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Email</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Имя</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">PayPal Email</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">План</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Статус</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Токены</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Платежи</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-400">Действия</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-800">
-                  {filteredSubscribers.map((subscriber) => (
-                    <tr key={subscriber.id} className="hover:bg-black/20">
-                      <td className="px-4 py-3 text-sm">{subscriber.email}</td>
-                      <td className="px-4 py-3 text-sm">{subscriber.displayName}</td>
-                      <td className="px-4 py-3 text-sm">{subscriber.paypalEmail || '-'}</td>
-                      <td className="px-4 py-3 text-sm">
-                        <PlanSelector
-                          currentPlan={subscriber.subscription.plan}
-                          onPlanChange={(plan) => handleQuickPlanChange(subscriber.id, plan)}
-                        />
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          subscriber.subscription.status === 'active'
-                            ? 'bg-green-500/10 text-green-500'
-                            : subscriber.subscription.status === 'trial'
-                            ? 'bg-blue-500/10 text-blue-500'
-                            : 'bg-red-500/10 text-red-500'
-                        }`}>
-                          {subscriber.subscription.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm">{subscriber.subscription.tokensLeft}</td>
-                      <td className="px-4 py-3 text-sm relative">
-                        <PaymentHistory 
-                          payments={subscriber.payments}
-                          totalPaid={subscriber.totalPaid}
-                        />
-                      </td>
-                      <td className="px-4 py-3 text-sm text-right">
-                        <button
-                          onClick={() => setEditingSubscriber(subscriber)}
-                          className="text-gray-400 hover:text-white transition-colors p-1"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(subscriber.id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors p-1 ml-2"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <SubscribersList
+              subscribers={filteredSubscribers}
+              onPlanChange={handleQuickPlanChange}
+              onDelete={handleDelete}
+              onEdit={setEditingSubscriber}
+            />
           )}
         </div>
       </div>

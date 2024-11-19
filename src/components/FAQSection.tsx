@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Minus } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface FAQItem {
@@ -80,7 +80,7 @@ export function FAQSection() {
 
       <div className="max-w-3xl mx-auto bg-gray-800/30 rounded-2xl p-4 md:p-6 lg:p-8">
         {faqItems.map((item, index) => (
-          <FAQItem key={index} {...item} />
+          <FAQAccordion key={index} item={item} />
         ))}
       </div>
     </section>

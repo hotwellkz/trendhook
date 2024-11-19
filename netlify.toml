@@ -20,3 +20,9 @@
   to = "/.netlify/functions/telegram-webhook"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/api/setup-webhook"
+  to = "/.netlify/functions/setup-webhook"
+  status = 200
+  force = true

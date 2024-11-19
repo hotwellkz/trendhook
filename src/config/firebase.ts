@@ -39,8 +39,11 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
 googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
+
+// Добавляем дополнительные параметры для Google Sign In
 googleProvider.setCustomParameters({
-  prompt: 'select_account'
+  prompt: 'select_account',
+  client_id: '678089630781-i0kmtgnf1jqv1guu01seg0q6ag82sd5i.apps.googleusercontent.com' // Добавляем Web client ID
 });
 
 // Экспортируем функцию для Google входа с обработкой ошибок

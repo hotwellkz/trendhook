@@ -124,17 +124,21 @@ export function Dashboard() {
           </div>
         )}
 
-        {/* Кнопка создания сценария для мобильных устройств */}
-        <div className="block md:hidden mb-8">
-          {!showGenerator && (
+        {/* Мобильная версия: кнопка создания и генератор */}
+        <div className="md:hidden">
+          {!showGenerator ? (
             <button
               onClick={() => setShowGenerator(true)}
               disabled={isTrialExpired}
-              className="w-full flex items-center justify-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 bg-[#AAFF00] text-black px-6 py-3 rounded-xl font-medium hover:bg-[#88CC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-8"
             >
               <PlusCircle className="w-5 h-5" />
               <span>Создать новый сценарий</span>
             </button>
+          ) : (
+            <div className="mb-8">
+              <ScriptGenerator />
+            </div>
           )}
         </div>
 
@@ -205,9 +209,9 @@ export function Dashboard() {
         {/* Сохраненные сценарии */}
         <SavedScripts />
 
-        {/* Кнопка создания сценария для десктопа */}
+        {/* Десктопная версия: кнопка создания и генератор */}
         <div className="hidden md:block">
-          {!showGenerator && (
+          {!showGenerator ? (
             <button
               onClick={() => setShowGenerator(true)}
               disabled={isTrialExpired}
@@ -216,15 +220,12 @@ export function Dashboard() {
               <PlusCircle className="w-5 h-5" />
               <span>Создать новый сценарий</span>
             </button>
+          ) : (
+            <div className="mb-8">
+              <ScriptGenerator />
+            </div>
           )}
         </div>
-
-        {/* Генератор сценариев */}
-        {showGenerator && (
-          <div className="mb-8">
-            <ScriptGenerator />
-          </div>
-        )}
       </div>
     </div>
   );

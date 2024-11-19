@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, X, Send, Loader2 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { doc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { doc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'admin';
-  timestamp: Date;
+  timestamp: Timestamp | Date;
 }
 
 export function ChatWidget() {
@@ -21,7 +21,7 @@ export function ChatWidget() {
   const [chatId, setChatId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) return undefined;
 
     // Создаем или получаем существующий чат
     const initChat = async () => {
@@ -41,18 +41,21 @@ export function ChatWidget() {
         const newMessages = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
-          timestamp: doc.data().timestamp?.toDate()
+          timestamp: doc.data().timestamp?.toDate() || new Date()
         })) as Message[];
         setMessages(newMessages);
         scrollToBottom();
       });
     };
 
-    const unsubscribe = initChat();
+    const unsubscribePromise = initChat();
+    
     return () => {
-      if (typeof unsubscribe === 'function') {
-        unsubscribe();
-      }
+      unsubscribePromise.then(unsubscribe => {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      });
     };
   }, [user]);
 
@@ -72,6 +75,20 @@ export function ChatWidget() {
         sender: 'user',
         timestamp: serverTimestamp()
       });
+
+      // Отправляем уведомление в Telegram
+      await fetch('/.netlify/functions/telegram-notify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chatId,
+          message,
+          userEmail: user.email
+        }),
+      });
+
       setMessage('');
     } catch (error) {
       console.error('Error sending message:', error);
@@ -113,7 +130,7 @@ export function ChatWidget() {
                 >
                   <p className="text-sm">{msg.text}</p>
                   <span className="text-xs opacity-75 mt-1 block">
-                    {msg.timestamp?.toLocaleTimeString()}
+                    {msg.timestamp instanceof Date ? msg.timestamp.toLocaleTimeString() : 'Сейчас'}
                   </span>
                 </div>
               </div>

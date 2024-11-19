@@ -9,6 +9,17 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const updateUserData = async (userId: string) => {
+    try {
+      const userData = await getUser(userId);
+      if (userData) {
+        setUser(userData);
+      }
+    } catch (error) {
+      console.error('Error updating user data:', error);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser: FirebaseUser | null) => {
       try {
@@ -43,5 +54,5 @@ export function useAuth() {
     return () => unsubscribe();
   }, []);
 
-  return { user, loading, error };
+  return { user, loading, error, updateUserData };
 }

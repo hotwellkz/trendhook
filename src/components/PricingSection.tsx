@@ -67,7 +67,7 @@ export function PricingSection() {
   const handleSubscribe = async (priceId: string) => {
     try {
       if (!user) {
-        navigate('/login');
+        navigate('/signup');
         return;
       }
 
@@ -129,7 +129,7 @@ export function PricingSection() {
                 ))}
               </ul>
               <button
-                onClick={() => handleSubscribe(plan.priceId)}
+                onClick={() => navigate('/signup')}
                 className={`w-full py-3 rounded-full font-medium transition-colors ${
                   plan.isPopular || hoveredPlan === plan.priceId
                     ? 'bg-[#AAFF00] text-black hover:bg-[#88CC00]'

@@ -3,12 +3,12 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD1YomusyOJxJIRgn7ewrmz0CU-fmTl9HI",
-  authDomain: "virahook.firebaseapp.com",
-  projectId: "virahook",
-  storageBucket: "virahook.firebasestorage.app",
-  messagingSenderId: "678089630781",
-  appId: "1:678089630781:web:76ea8729d5470808927654"
+  apiKey: "AIzaSyBtZswjAtSwEDl_m7jlEzmoIsAmv6SJbjk",
+  authDomain: "trendvideo.online",
+  projectId: "youtubeapp-221719",
+  storageBucket: "youtubeapp-221719.appspot.com",
+  messagingSenderId: "678595429851",
+  appId: "1:678595429851-ov2ibq0fsash3qr98hkgn8g85n69683v"
 };
 
 // Initialize Firebase

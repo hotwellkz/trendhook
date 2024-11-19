@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, AlertCircle, Home, Eye, EyeOff } from 'lucide-react';
-import { auth } from '../config/firebase';
+import { auth, googleProvider } from '../config/firebase';
 import { 
   signInWithEmailAndPassword, 
   signInWithPopup,
-  GoogleAuthProvider,
   onAuthStateChanged
 } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -48,13 +47,8 @@ export function AuthPage() {
     setError('');
     
     try {
-      const provider = new GoogleAuthProvider();
-      // Настраиваем провайдер
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
-      
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log('Google sign in success:', result);
       if (result.user) {
         navigate('/dashboard');
       }
@@ -84,6 +78,8 @@ export function AuthPage() {
         return 'Операция была отменена. Пожалуйста, попробуйте снова.';
       case 'auth/operation-not-allowed':
         return 'Этот метод входа временно недоступен. Пожалуйста, используйте другой способ.';
+      case 'auth/unauthorized-domain':
+        return 'Этот домен не авторизован для входа через Google. Пожалуйста, проверьте настройки Firebase.';
       default:
         return 'Произошла ошибка при входе. Пожалуйста, попробуйте позже или используйте другой способ входа.';
     }

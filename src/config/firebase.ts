@@ -8,7 +8,7 @@ const firebaseConfig = {
   projectId: "virahook",
   storageBucket: "virahook.firebasestorage.app",
   messagingSenderId: "678089630781",
-  appId: "1:678089630781:web:fedd5fbc308524e4927654"
+  appId: "1:678089630781:web:76ea8729d5470808927654"
 };
 
 // Initialize Firebase

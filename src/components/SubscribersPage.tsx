@@ -1,10 +1,76 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, ArrowLeft, Search, Plus, Download, Edit2, Trash2, Loader2, X } from 'lucide-react';
+import { Activity, ArrowLeft, Search, Plus, Download, Edit2, Trash2, Loader2, X, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { doc, deleteDoc, collection, getDocs, updateDoc, addDoc } from 'firebase/firestore';
+import { doc, deleteDoc, collection, getDocs, updateDoc, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import type { User } from '../types/database';
+import type { User, SubscriptionPlan } from '../types/database';
+
+const PLANS: { [key in SubscriptionPlan]: { title: string, tokens: number } } = {
+  'free': { title: 'Бесплатный', tokens: 10 },
+  'content-creator': { title: 'Контент-мейкер', tokens: 60 },
+  'business': { title: 'Бизнес', tokens: 250 },
+  'agency': { title: 'Агентство', tokens: 999999 } // Безлимит
+};
+
+interface PlanSelectorProps {
+  currentPlan: SubscriptionPlan;
+  onPlanChange: (plan: SubscriptionPlan) => void;
+  disabled?: boolean;
+}
+
+function PlanSelector({ currentPlan, onPlanChange, disabled }: PlanSelectorProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        className="w-full bg-black/40 rounded-lg px-3 py-2 text-left text-sm flex items-center justify-between gap-2 disabled:opacity-50"
+        disabled={disabled}
+      >
+        <span className={`${getPlanColor(currentPlan)}`}>
+          {PLANS[currentPlan]?.title || 'Бесплатный'}
+        </span>
+        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-black/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-800">
+          {Object.entries(PLANS).map(([plan, { title }]) => (
+            <button
+              key={plan}
+              type="button"
+              onClick={() => {
+                onPlanChange(plan as SubscriptionPlan);
+                setIsOpen(false);
+              }}
+              className={`w-full px-3 py-2 text-left text-sm hover:bg-[#AAFF00]/10 transition-colors ${
+                plan === currentPlan ? 'bg-[#AAFF00]/5 text-[#AAFF00]' : ''
+              }`}
+            >
+              {title}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function getPlanColor(plan: SubscriptionPlan): string {
+  switch (plan) {
+    case 'agency':
+      return 'text-purple-400';
+    case 'business':
+      return 'text-blue-400';
+    case 'content-creator':
+      return 'text-green-400';
+    default:
+      return 'text-gray-400';
+  }
+}
 
 interface SubscriberModalProps {
   isOpen: boolean;
@@ -18,6 +84,7 @@ function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: Subs
   const [email, setEmail] = useState(initialData?.email || '');
   const [displayName, setDisplayName] = useState(initialData?.displayName || '');
   const [paypalEmail, setPaypalEmail] = useState(initialData?.paypalEmail || '');
+  const [plan, setPlan] = useState<SubscriptionPlan>(initialData?.subscription?.plan || 'free');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -26,6 +93,7 @@ function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: Subs
       setEmail(initialData.email);
       setDisplayName(initialData.displayName || '');
       setPaypalEmail(initialData.paypalEmail || '');
+      setPlan(initialData.subscription?.plan || 'free');
     }
   }, [initialData]);
 
@@ -35,10 +103,21 @@ function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: Subs
     setLoading(true);
 
     try {
+      const now = new Date();
+      const trialEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
       await onSubmit({
         email,
         displayName,
-        paypalEmail
+        paypalEmail,
+        subscription: {
+          plan,
+          tokensLeft: PLANS[plan].tokens,
+          status: 'active',
+          trialEndsAt,
+          expiresAt: trialEndsAt,
+          lastUpdated: now
+        }
       });
       onClose();
     } catch (err) {
@@ -103,6 +182,17 @@ function SubscriberModal({ isOpen, onClose, onSubmit, initialData, title }: Subs
               onChange={(e) => setPaypalEmail(e.target.value)}
               className="w-full bg-black/40 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 border border-gray-700/50"
               placeholder="Email для выплат PayPal"
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Тарифный план
+            </label>
+            <PlanSelector
+              currentPlan={plan}
+              onPlanChange={setPlan}
               disabled={loading}
             />
           </div>
@@ -197,16 +287,26 @@ export default function SubscribersPage() {
         ...data,
         createdAt: now,
         subscription: {
-          plan: 'free',
-          tokensLeft: 10,
-          status: 'trial',
+          plan: data.subscription?.plan || 'free',
+          tokensLeft: PLANS[data.subscription?.plan || 'free'].tokens,
+          status: 'active',
           trialEndsAt,
           expiresAt: trialEndsAt,
           lastUpdated: now
         }
       };
 
-      const docRef = await addDoc(usersRef, newUser);
+      const docRef = await addDoc(usersRef, {
+        ...newUser,
+        createdAt: Timestamp.fromDate(now),
+        subscription: {
+          ...newUser.subscription,
+          trialEndsAt: Timestamp.fromDate(trialEndsAt),
+          expiresAt: Timestamp.fromDate(trialEndsAt),
+          lastUpdated: Timestamp.fromDate(now)
+        }
+      });
+      
       setSubscribers(prev => [...prev, { id: docRef.id, ...newUser } as User]);
     } catch (err) {
       console.error('Error adding subscriber:', err);
@@ -219,9 +319,15 @@ export default function SubscribersPage() {
 
     try {
       const userRef = doc(db, 'users', editingSubscriber.id);
+      const now = new Date();
+      
       await updateDoc(userRef, {
         ...data,
-        updatedAt: new Date()
+        updatedAt: Timestamp.fromDate(now),
+        subscription: {
+          ...data.subscription,
+          lastUpdated: Timestamp.fromDate(now)
+        }
       });
 
       setSubscribers(prev => 
@@ -248,6 +354,38 @@ export default function SubscribersPage() {
     } catch (err) {
       console.error('Error deleting subscriber:', err);
       alert('Ошибка при удалении подписчика');
+    }
+  };
+
+  const handleQuickPlanChange = async (subscriberId: string, newPlan: SubscriptionPlan) => {
+    try {
+      const userRef = doc(db, 'users', subscriberId);
+      const now = new Date();
+      
+      await updateDoc(userRef, {
+        'subscription.plan': newPlan,
+        'subscription.tokensLeft': PLANS[newPlan].tokens,
+        'subscription.lastUpdated': Timestamp.fromDate(now)
+      });
+
+      setSubscribers(prev => 
+        prev.map(sub => 
+          sub.id === subscriberId 
+            ? {
+                ...sub,
+                subscription: {
+                  ...sub.subscription,
+                  plan: newPlan,
+                  tokensLeft: PLANS[newPlan].tokens,
+                  lastUpdated: now
+                }
+              }
+            : sub
+        )
+      );
+    } catch (err) {
+      console.error('Error changing plan:', err);
+      alert('Ошибка при изменении тарифного плана');
     }
   };
 
@@ -344,7 +482,12 @@ export default function SubscribersPage() {
                       <td className="px-4 py-3 text-sm">{subscriber.email}</td>
                       <td className="px-4 py-3 text-sm">{subscriber.displayName}</td>
                       <td className="px-4 py-3 text-sm">{subscriber.paypalEmail || '-'}</td>
-                      <td className="px-4 py-3 text-sm">{subscriber.subscription.plan}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <PlanSelector
+                          currentPlan={subscriber.subscription.plan}
+                          onPlanChange={(plan) => handleQuickPlanChange(subscriber.id, plan)}
+                        />
+                      </td>
                       <td className="px-4 py-3 text-sm">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           subscriber.subscription.status === 'active'

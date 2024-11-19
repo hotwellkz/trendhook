@@ -1,56 +1,41 @@
-interface PageSEO {
-  title: string;
-  h1: string;
-  description: string;
-  focusKeyword: string;
-  keywords: string[];
-  canonicalUrl: string;
-  ogTitle: string;
-  ogDescription: string;
-  ogImage?: string;
-  structuredData?: object;
-}
-
-interface SEOConfig {
-  siteName: string;
-  siteUrl: string;
-  pages: Record<string, PageSEO>;
-}
+// ... остальной код остается прежним ...
 
 export const seoConfig: SEOConfig = {
   siteName: "TrendVideo",
   siteUrl: "https://trendvideo.online",
   pages: {
-    home: {
-      title: "TrendVideo | AI Генератор Вирусных Сценариев к Видео для Социальных Сетей",
-      h1: "Создавайте Вирусные Видео с Помощью ИИ",
-      description: "TrendVideo - умный AI генератор контента для создания вирусных видео. Автоматизируйте создание контента для TikTok, Instagram Reels и YouTube Shorts. Попробуйте бесплатно!",
-      focusKeyword: "генератор вирусных видео",
+    // ... остальные страницы ...
+    
+    aiScripts: {
+      title: "Нейросеть для генерации сценариев | TrendVideo - AI генератор контента",
+      h1: "Нейросеть для генерации сценариев",
+      description: "Создавайте профессиональные сценарии для видео с помощью нейросети. Автоматизируйте создание контента с искусственным интеллектом. Попробуйте бесплатно!",
+      focusKeyword: "нейросеть для генерации сценариев",
       keywords: [
-        "генератор вирусных видео",
-        "ai генератор видео",
-        "создание видео для тикток",
-        "генератор контента для инстаграм",
-        "создание видео для соцсетей",
-        "ai помощник для видео",
-        "автоматизация создания контента"
+        "нейросеть для генерации сценариев",
+        "ai генератор сценариев",
+        "генерация текста для видео",
+        "искусственный интеллект сценарии",
+        "автоматическое создание сценариев",
+        "нейросеть контент",
+        "ai помощник сценарист"
       ],
-      canonicalUrl: "https://trendvideo.online",
-      ogTitle: "TrendVideo - AI Генератор Вирусных Видео | Создавайте Контент Автоматически",
-      ogDescription: "Автоматизируйте создание вирусных видео для TikTok, Instagram и YouTube с помощью искусственного интеллекта. Экономьте время на создании контента!",
-      ogImage: "https://trendvideo.online/og-image.jpg",
+      canonicalUrl: "https://trendvideo.online/ai-scripts",
+      ogTitle: "Нейросеть для генерации сценариев | Создавайте контент с AI",
+      ogDescription: "Автоматизируйте создание сценариев для видео с помощью искусственного интеллекта. Экономьте время на создании контента!",
+      ogImage: "https://trendvideo.online/ai-scripts-og.jpg",
       structuredData: {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "TrendVideo",
-        "applicationCategory": "MultimediaApplication",
+        "name": "TrendVideo AI Scripts Generator",
+        "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
         "offers": {
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "USD"
         },
-        "description": "AI-powered video content generator for social media"
+        "description": "AI-powered script generator for video content"
       }
     }
   }

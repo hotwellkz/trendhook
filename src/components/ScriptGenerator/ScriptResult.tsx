@@ -13,8 +13,28 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
   const [isEditing, setIsEditing] = useState(false);
   const [editedScript, setEditedScript] = useState(script);
   const [timeLeft, setTimeLeft] = useState<string>('');
-  const [textareaHeight, setTextareaHeight] = useState<string>('auto');
-  const scriptDivRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Функция для автоматической настройки высоты textarea
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
+  // Настраиваем высоту при монтировании и изменении режима редактирования
+  useEffect(() => {
+    if (isEditing) {
+      adjustTextareaHeight();
+    }
+  }, [isEditing]);
+
+  // Настраиваем высоту при изменении текста
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [editedScript]);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -42,13 +62,6 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
 
     return () => clearInterval(interval);
   }, [scriptId]);
-
-  // Сохраняем высоту div перед переключением в режим редактирования
-  useEffect(() => {
-    if (isEditing && scriptDivRef.current) {
-      setTextareaHeight(`${scriptDivRef.current.offsetHeight}px`);
-    }
-  }, [isEditing]);
 
   const handleCopy = async () => {
     try {
@@ -91,6 +104,11 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
 
   const handleEdit = () => {
     setIsEditing(!isEditing);
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setEditedScript(e.target.value);
+    adjustTextareaHeight();
   };
 
   return (
@@ -172,16 +190,13 @@ export function ScriptResult({ script, analysis, onNewIdea, scriptId }: ScriptRe
         </div>
         {isEditing ? (
           <textarea
+            ref={textareaRef}
             value={editedScript}
-            onChange={(e) => setEditedScript(e.target.value)}
-            className="w-full bg-black/40 rounded-lg p-4 text-white resize-y focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 text-sm md:text-base"
-            style={{ height: textareaHeight }}
+            onChange={handleTextChange}
+            className="w-full bg-black/40 rounded-lg p-4 text-white resize-none focus:outline-none focus:ring-2 focus:ring-[#AAFF00]/50 text-sm md:text-base min-h-[200px] overflow-hidden"
           />
         ) : (
-          <div 
-            ref={scriptDivRef}
-            className="bg-black/40 rounded-lg p-4 whitespace-pre-wrap text-sm md:text-base"
-          >
+          <div className="bg-black/40 rounded-lg p-4 whitespace-pre-wrap text-sm md:text-base">
             {editedScript || script}
           </div>
         )}

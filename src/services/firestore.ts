@@ -17,6 +17,12 @@ import {
 import { db } from '../config/firebase';
 import type { User, UserSubscription, SubscriptionPlan } from '../types/database';
 
+interface CreateUserData {
+  email: string;
+  displayName: string | null;
+  photoURL: string | null;
+}
+
 // Интерфейс для сохраненного сценария
 export interface SavedScript {
   id: string;
@@ -28,12 +34,6 @@ export interface SavedScript {
   objective: string;
   createdAt: Date;
   expiresAt: Date;
-}
-
-interface CreateUserData {
-  email: string;
-  displayName: string | null;
-  photoURL: string | null;
 }
 
 const TRIAL_PERIOD_DAYS = 7;
@@ -58,7 +58,7 @@ export const createUser = async (userId: string, userData: CreateUserData): Prom
     const data: User = {
       id: userId,
       email: userData.email,
-      displayName: userData.displayName,
+      displayName: userData.displayName || 'Пользователь',
       photoURL: userData.photoURL,
       createdAt: now,
       subscription,

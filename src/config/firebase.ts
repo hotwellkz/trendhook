@@ -3,24 +3,22 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyD1YomusyOJxJIRgn7ewrmz0CU-fmTl9HI",
+  authDomain: "virahook.firebaseapp.com",
+  projectId: "virahook",
+  storageBucket: "virahook.firebasestorage.app",
+  messagingSenderId: "678089630781",
+  appId: "1:678089630781:web:fedd5fbc308524e4927654"
 };
 
-// Инициализируем Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Инициализируем Auth
+// Initialize Auth
 const auth = getAuth(app);
 
 // Настраиваем Google Provider
 const googleProvider = new GoogleAuthProvider();
-
-// Добавляем необходимые scopes
 googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
 googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
 

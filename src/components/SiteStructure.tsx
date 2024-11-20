@@ -54,6 +54,12 @@ export const sitePages: PageInfo[] = [
     category: 'main'
   },
   {
+    path: '/neural-script-generator',
+    title: 'Нейросеть для создания сценария',
+    description: 'Автоматическая генерация сценариев с помощью нейросети',
+    category: 'main'
+  },
+  {
     path: '/online-script-generator',
     title: 'Генератор сценариев онлайн',
     description: 'Создание сценариев для видео онлайн',

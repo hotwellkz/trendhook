@@ -11,7 +11,7 @@ interface PageInfo {
 }
 
 // Централизованный список всех страниц сайта
-const sitePages: PageInfo[] = [
+export const sitePages: PageInfo[] = [
   // Основные страницы
   {
     path: '/',
@@ -41,6 +41,12 @@ const sitePages: PageInfo[] = [
     path: '/how-to-write-script',
     title: 'Как написать сценарий',
     description: 'Пошаговое руководство по написанию эффективных сценариев для видео',
+    category: 'main'
+  },
+  {
+    path: '/reels-script',
+    title: 'Сценарий к Reels',
+    description: 'Создание вирусных сценариев для Instagram Reels',
     category: 'main'
   },
 
@@ -190,5 +196,3 @@ export function SiteStructure() {
     </div>
   );
 }
-
-export { sitePages };

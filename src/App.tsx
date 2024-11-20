@@ -18,6 +18,7 @@ import { AIScriptsPage } from './components/AIScriptsPage';
 import { ScriptWritingPage } from './components/ScriptWritingPage';
 import { ReelsScriptPage } from './components/ReelsScriptPage';
 import { AIScriptGeneratorPage } from './components/AIScriptGeneratorPage';
+import { OnlineScriptGeneratorPage } from './components/OnlineScriptGeneratorPage';
 import SubscribersPage from './components/SubscribersPage';
 import { ScrollToTop } from './components/ScrollToTop';
 
@@ -45,6 +46,7 @@ function App() {
             <Route path="/how-to-write-script" element={<ScriptWritingPage />} />
             <Route path="/reels-script" element={<ReelsScriptPage />} />
             <Route path="/ai-script-generator" element={<AIScriptGeneratorPage />} />
+            <Route path="/online-script-generator" element={<OnlineScriptGeneratorPage />} />
             <Route path="/subscribers" element={<SubscribersPage />} />
           </Routes>
           {user && <ChatWidget />}

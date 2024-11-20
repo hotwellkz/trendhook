@@ -2,7 +2,6 @@ import React from 'react';
 import { Activity, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
-// Интерфейс для описания страницы
 interface PageInfo {
   path: string;
   title: string;
@@ -10,7 +9,6 @@ interface PageInfo {
   category: 'main' | 'auth' | 'dashboard' | 'legal' | 'other';
 }
 
-// Централизованный список всех страниц сайта
 export const sitePages: PageInfo[] = [
   // Основные страницы
   {
@@ -47,6 +45,12 @@ export const sitePages: PageInfo[] = [
     path: '/reels-script',
     title: 'Сценарий к Reels',
     description: 'Создание вирусных сценариев для Instagram Reels',
+    category: 'main'
+  },
+  {
+    path: '/ai-script-generator',
+    title: 'Генератор сценария нейросеть',
+    description: 'ИИ-генератор для создания профессиональных сценариев',
     category: 'main'
   },
 
@@ -113,7 +117,7 @@ export const sitePages: PageInfo[] = [
 
 export function SiteStructure() {
   const navigate = useNavigate();
-
+  
   // Группировка страниц по категориям
   const groupedPages = sitePages.reduce((acc, page) => {
     if (!acc[page.category]) {
@@ -134,7 +138,6 @@ export function SiteStructure() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Навигация */}
       <nav className="border-b border-gray-800 bg-black/95 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
@@ -158,7 +161,6 @@ export function SiteStructure() {
         </div>
       </nav>
 
-      {/* Контент */}
       <div className="max-w-4xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-8">Структура сайта</h1>
 

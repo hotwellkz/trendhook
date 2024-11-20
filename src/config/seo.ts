@@ -1,21 +1,4 @@
-export interface SEOConfig {
-  siteName: string;
-  siteUrl: string;
-  pages: {
-    [key: string]: {
-      title: string;
-      h1: string;
-      description: string;
-      focusKeyword: string;
-      keywords: string[];
-      canonicalUrl: string;
-      ogTitle: string;
-      ogDescription: string;
-      ogImage?: string;
-      structuredData?: object;
-    };
-  };
-}
+import { SEOConfig } from '../types/seo';
 
 export const seoConfig: SEOConfig = {
   siteName: "TrendVideo",
@@ -43,22 +26,50 @@ export const seoConfig: SEOConfig = {
       ogDescription: "Автоматизируйте создание сценариев для видео с помощью искусственного интеллекта. Экономьте время на создании контента!",
       ogImage: "https://trendvideo.online/og-image.jpg"
     },
-    aiScripts: {
-      title: "AI Генератор сценариев | TrendVideo - Создание вирусного контента",
-      h1: "Нейросеть для генерации сценариев",
-      description: "Создавайте профессиональные сценарии для видео с помощью искусственного интеллекта. Экономьте время и ресурсы на создании контента.",
-      focusKeyword: "ai генератор сценариев",
+    scriptWriting: {
+      title: "Как написать сценарий для видео | Пошаговое руководство 2024",
+      h1: "Как написать сценарий для видео",
+      description: "Узнайте, как написать эффективный сценарий для видео. Пошаговое руководство, советы экспертов и практические примеры. Создавайте профессиональные сценарии прямо сейчас!",
+      focusKeyword: "как написать сценарий",
       keywords: [
-        "ai генератор сценариев",
-        "нейросеть для сценариев",
-        "автоматическая генерация сценариев",
-        "искусственный интеллект для видео",
-        "создание контента с ии"
+        "как написать сценарий",
+        "написание сценария для видео",
+        "структура видеосценария",
+        "создание сценария",
+        "сценарий для видеоролика",
+        "написать сценарий самостоятельно",
+        "правила написания сценария",
+        "примеры сценариев",
+        "план сценария",
+        "видеосценарий"
       ],
-      canonicalUrl: "https://trendvideo.online/ai-scripts",
-      ogTitle: "AI Генератор сценариев | Создавайте вирусный контент",
-      ogDescription: "Используйте искусственный интеллект для создания профессиональных сценариев. Экономьте до 90% времени!",
-      ogImage: "https://trendvideo.online/og-image.jpg"
+      canonicalUrl: "https://trendvideo.online/how-to-write-script",
+      ogTitle: "Как написать сценарий для видео | Полное руководство",
+      ogDescription: "Научитесь писать эффективные сценарии для видео с нашим пошаговым руководством. Практические советы и примеры.",
+      ogImage: "https://trendvideo.online/script-writing-guide.jpg",
+      structuredData: {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "Как написать сценарий для видео",
+        "description": "Пошаговое руководство по написанию эффективного сценария для видео",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Определение структуры",
+            "text": "Создайте четкую структуру сценария: хук, основной контент, призыв к действию"
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Написание сценария",
+            "text": "Следуйте процессу написания: исследование, черновик, редактирование"
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Оптимизация",
+            "text": "Улучшите сценарий для максимального вовлечения аудитории"
+          }
+        ]
+      }
     }
   }
 };

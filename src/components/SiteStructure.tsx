@@ -37,6 +37,12 @@ const sitePages: PageInfo[] = [
     description: 'Автоматическое создание сценариев с помощью AI',
     category: 'main'
   },
+  {
+    path: '/how-to-write-script',
+    title: 'Как написать сценарий',
+    description: 'Пошаговое руководство по написанию эффективных сценариев для видео',
+    category: 'main'
+  },
 
   // Страницы авторизации
   {

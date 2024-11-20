@@ -19,6 +19,7 @@ import { ScriptWritingPage } from './components/ScriptWritingPage';
 import { ReelsScriptPage } from './components/ReelsScriptPage';
 import { AIScriptGeneratorPage } from './components/AIScriptGeneratorPage';
 import { OnlineScriptGeneratorPage } from './components/OnlineScriptGeneratorPage';
+import { NeuralScriptGeneratorPage } from './components/NeuralScriptGeneratorPage';
 import SubscribersPage from './components/SubscribersPage';
 import { ScrollToTop } from './components/ScrollToTop';
 
@@ -47,6 +48,7 @@ function App() {
             <Route path="/reels-script" element={<ReelsScriptPage />} />
             <Route path="/ai-script-generator" element={<AIScriptGeneratorPage />} />
             <Route path="/online-script-generator" element={<OnlineScriptGeneratorPage />} />
+            <Route path="/neural-script-generator" element={<NeuralScriptGeneratorPage />} />
             <Route path="/subscribers" element={<SubscribersPage />} />
           </Routes>
           {user && <ChatWidget />}

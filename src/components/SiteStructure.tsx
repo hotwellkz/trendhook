@@ -53,6 +53,12 @@ export const sitePages: PageInfo[] = [
     description: 'ИИ-генератор для создания профессиональных сценариев',
     category: 'main'
   },
+  {
+    path: '/online-script-generator',
+    title: 'Генератор сценариев онлайн',
+    description: 'Создание сценариев для видео онлайн',
+    category: 'main'
+  },
 
   // Страницы авторизации
   {
@@ -117,7 +123,7 @@ export const sitePages: PageInfo[] = [
 
 export function SiteStructure() {
   const navigate = useNavigate();
-  
+
   // Группировка страниц по категориям
   const groupedPages = sitePages.reduce((acc, page) => {
     if (!acc[page.category]) {
